@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTMX</title>
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+
+    <button 
+        hx-get="/horario/"
+        hx-target="#resultado"
+        hx-swap="innerHTML"
+    >
+        Ver horário
+    </button>
+
+    <div id="resultado"></div>
+
+</body>
+</html>
