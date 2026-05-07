@@ -1,9 +1,106 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}
-Totem
+Seletto - Sistema de Atendimento
 {% endblock %}
 
 {% block content %}
-<h1>Escolha o atendimento</h1>
+<div  class="bg-black min-vh-100 d-flex flex-column justify-content-center align-items-center text-white">
+    
+    <div class="text-center mb-16">
+          <img src="{% static 'img/logo.png' %}" alt="Seletto" width="200" class=" mx-auto mb-8" />
+          <p class="fs-2  mb-1">Sistema de Atendimento</p>
+          <p class="fs-5 text-secondary">Gestão Elegante de Filas</p>
+    </div>
+
+    <div class="row justify-content-center g-4 w-100">
+        <div class="mt-5 col-md-3">
+            <a href="" class="text-decoration-none">
+
+                <div class="card border-0 rounded-5 shadow-lg text-center py-5 h-100 card-hover">
+
+                    <div class="d-flex justify-content-center mb-4">
+
+                        <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                             style="width: 100px; height: 100px;">
+
+                            <i class="bi bi-display-fill fs-1"></i>
+
+                        </div>
+
+                    </div>
+
+                    <h2 class="fw-bold text-black">
+                        Totem
+                    </h2>
+
+                    <p class="text-secondary fs-5">
+                        Interface do cliente
+                    </p>
+
+                </div>
+
+            </a>
+        </div>
+        
+        <div class="mt-5 col-md-3">
+            <a href="" class="text-decoration-none">
+
+                <div class="card border-0 rounded-5 shadow-lg text-center py-5 h-100 card-hover">
+
+                    <div class="d-flex justify-content-center mb-4">
+
+                        <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                             style="width: 100px; height: 100px;">
+
+                            <i class="bi bi-tv-fill fs-1"></i>
+
+                        </div>
+
+                    </div>
+
+                    <h2 class="fw-bold text-black">
+                        Display
+                    </h2>
+
+                    <p class="text-secondary fs-5">
+                        Tela de exibição
+                    </p>
+
+                </div>
+
+            </a>
+        </div>
+
+        <div class="mt-5 col-md-3">
+            <a href="" class="text-decoration-none">
+
+                <div class="card border-0 rounded-5 shadow-lg text-center py-5 h-100 card-hover">
+
+                    <div class="d-flex justify-content-center mb-4">
+
+                        <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                             style="width: 100px; height: 100px;">
+
+                            <i class="bi bi-gear-fill fs-1"></i>
+
+                        </div>
+
+                    </div>
+
+                    <h2 class="fw-bold text-black">
+                        Admin
+                    </h2>
+
+                    <p class="text-secondary fs-5">
+                        Painel de controle
+                    </p>
+
+                </div>
+
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -4,19 +4,18 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>{% block title %}Sistema{% endblock %}</title>
 
-    <link rel="stylesheet"
-          href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-
-    <link rel="stylesheet"
-          href="{% static 'css/style.css' %}">
-
-    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-icons/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="m-0 p-0 bg-dark">
 
-    {% block content %}
-    {% endblock %}
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
 
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 </body>
