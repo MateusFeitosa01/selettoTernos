@@ -16,11 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from core.views import index
+from core.views import index, totem, display, adminSeletto, formulario_cliente, formulario_cliente
 
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index),
+
+    path('', index, name='index'),
+
+    path('totem/', totem, name='totem'),
+
+    path( 'dados-cliente/<str:tipo>/', formulario_cliente, name='dados_cliente' ),
+
+    path('display/', display, name='display'),
+
+    path('admin-seletto/', adminSeletto, name='adminSeletto' ),
 ]

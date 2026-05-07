@@ -1,0 +1,106 @@
+{% extends 'base/base_totem.html' %}
+{% load static %}
+
+{% block title %}
+Preencha seus dados
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
+        <div class="text-center mb-5">
+          <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-2" />
+          <p class="fs-1 mb-1">Identificação</p>
+          <p class="fs-3 mb-1 text-secondary"> {{tipo}}</p>
+          <p class="fs-5 mb-1 text-secondary">Preencha seus dados para continuar</p>
+        </div>
+        <div class="container-fluid bg-black d-flex justify-content-center align-items-center ">
+
+            <div class=" rounded-5 p-5  w-100" style="max-width: 600px;background-color:rgb(23, 23, 23)">
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Nome -->
+                    <div class="mb-4">
+                        <label class="form-label text-white fs-5 d-flex align-items-center gap-2">
+                            Nome Completo
+                        </label>
+
+                        <input 
+                            type="text"
+                            name="nome"
+                            value="{{ form.nome.value|default:'' }}"
+                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
+                            style="background-color: rgb(38, 38, 38);"
+                            placeholder="Digite seu nome"
+                        >
+
+                        {% if form.nome.errors %}
+                            <div class="text-light small mt-2">
+                                {{ form.nome.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label class="form-label text-white fs-5 d-flex align-items-center gap-2">
+                            Email
+                        </label>
+
+                        <input 
+                            type="email"
+                            name="email"
+                            value="{{ form.email.value|default:'' }}"
+                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
+                            style="background-color: rgb(38, 38, 38);"
+                            placeholder="seu@email.com"
+                        >
+
+                        {% if form.email.errors %}
+                            <div class="text-light small mt-2">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="mb-4">
+                        <label class="form-label text-white fs-5 d-flex align-items-center gap-2">
+                            Telefone
+                        </label>
+
+                        <input 
+                            type="tel"
+                            name="whatsapp"
+                            value="{{ form.whatsapp.value|default:'' }}"
+                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
+                            style="background-color: rgb(38, 38, 38);"
+                            placeholder="(11) 99999-9999"
+                        >
+
+                        {% if form.whatsapp.errors %}
+                            <div class="text-light small mt-2">
+                                {{ form.whatsapp.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="d-grid gap-3 mt-4 flex ">
+                        <button type="submit" class="btn btn-light btn-lg rounded-4 py-3 fs-5">
+                            Continuar
+                        </button>
+
+                        <button type="button" onclick="history.back()" class="btn btn-dark  btn-lg rounded-4 py-3 fs-5 text-white">
+                            Voltar
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

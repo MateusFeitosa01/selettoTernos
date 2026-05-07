@@ -1,0 +1,255 @@
+{% extends 'base/base_totem.html' %}
+{% load static %}
+
+{% block title %}
+Escolha o atendimento
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
+    <div class="text-center mb-16">
+          <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-3" />
+          <p class="fs-3 mb-1 text-secondary mb-5">Selecione o tipo de agentamento</p>
+    </div>
+     <div class="row g-4 justify-content-center mx-auto" style="max-width: 1100px;">
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'prova-noivo' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100 position-relative">
+
+                        <span class="badge bg-dark position-absolute top-0 start-50 translate-middle rounded-pill px-3 py-2">
+                            PRIORIDADE MAXIMA
+                        </span>
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-crown fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Prova Noivo
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'prioritario' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100 position-relative">
+
+                        <span class="badge bg-dark position-absolute top-0 start-50 translate-middle rounded-pill px-3 py-2">
+                            PRIORITÁRIO
+                        </span>
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-wheelchair fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Prioritário
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'locar-terno' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-shirt fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Locar Terno
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'prova' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="bi bi-box-fill fs-1 text-dark"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Prova
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'retrabalho' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-scissors fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Retrabalho
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'venda' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-bag-shopping fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Venda
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'troca' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-arrow-rotate-left fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Troca
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'retirada' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-box-open fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Retirada
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'gerente' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-message fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Falar com gerente
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+            <!-- CARD -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'dados_cliente' 'devolucao' %}" class="text-decoration-none">
+
+                    <div class="card atendimento-card border-0 rounded-5 text-center py-5 h-100">
+
+                        <div class="d-flex justify-content-center mb-4">
+
+                            <div class="icone-circle">
+                                <i class="fa-solid fa-arrow-turn-down fs-1"></i>
+                            </div>
+
+                        </div>
+
+                        <h3 class="fw-bold text-black">
+                            Devolução
+                        </h3>
+
+                    </div>
+
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
