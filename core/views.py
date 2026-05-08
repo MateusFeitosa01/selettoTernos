@@ -6,8 +6,6 @@ def index(request):
     return render(request, 'home/index.html')
 
 
-def totem(request):
-    return render(request, 'totem/escolha_atendimento.html')
 
 
 def display(request):
@@ -17,6 +15,9 @@ def display(request):
 def adminSeletto(request):
     return render(request, 'adminSeletto/dashboard.html')
 
+
+def totem(request):
+    return render(request, 'totem/escolha_atendimento.html')
 
 def formulario_cliente(request, tipo):
 
@@ -31,12 +32,22 @@ def formulario_cliente(request, tipo):
             request.session['email'] = form.cleaned_data['email']
             request.session['whatsapp'] = form.cleaned_data['whatsapp']
 
-            return redirect('totem')
+            return redirect('senhaGerada')
 
     else:
         form = ClienteForm()
 
     return render(request, 'totem/dados_cliente.html', {
         'form': form,
+        'tipo': tipo
+    })
+
+def senhaGerada(request):
+
+    nome = request.session.get('nome')
+    tipo = request.session.get('tipo_atendimento')
+
+    return render(request, 'totem/senha_gerada.html', {
+        'nome': nome,
         'tipo': tipo
     })

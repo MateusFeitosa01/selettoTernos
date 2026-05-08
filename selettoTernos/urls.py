@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from core.views import index, totem, display, adminSeletto, formulario_cliente, formulario_cliente
+from core.views import index, totem, display, adminSeletto, formulario_cliente, formulario_cliente, senhaGerada
 
 
 
@@ -32,4 +32,6 @@ urlpatterns = [
     path('display/', display, name='display'),
 
     path('admin-seletto/', adminSeletto, name='adminSeletto' ),
+    
+    path('senha-gerada/', senhaGerada, name='senhaGerada')
 ]
