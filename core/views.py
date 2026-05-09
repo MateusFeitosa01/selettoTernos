@@ -9,7 +9,14 @@ def index(request):
 
 
 def display(request):
-    return render(request, 'display/painel_fila.html')
+
+    #apenas teste para aparecer senha e tipo no frontend
+    teste = {
+        'senha' : 'PN001',
+        'tipo' : 'Prova Noivo'
+    }
+
+    return render(request, 'display/painel_fila.html', teste)
 
 
 def adminSeletto(request):
@@ -43,7 +50,7 @@ def formulario_cliente(request, tipo):
     })
 
 def senhaGerada(request):
-
+    
     nome = request.session.get('nome')
     tipo = request.session.get('tipo_atendimento')
 
