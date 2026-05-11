@@ -1,60 +1,25 @@
-from django.shortcuts import render, redirect
-from .forms import ClienteForm
+from django.views.generic import TemplateView
 
 
-def index(request):
-    return render(request, 'home/index.html')
+class HomeView(TemplateView):
+    template_name = 'home/index.html'
 
 
+class TotemEscolhaView(TemplateView):
+    template_name = 'totem/escolha_atendimento.html'
 
 
-def display(request):
-
-    #apenas teste para aparecer senha e tipo no frontend
-    teste = {
-        'senha' : 'PN001',
-        'tipo' : 'Prova Noivo'
-    }
-
-    return render(request, 'display/painel_fila.html', teste)
+class TotemDadosView(TemplateView):
+    template_name = 'totem/dados_cliente.html'
 
 
-def adminSeletto(request):
-    return render(request, 'adminSeletto/dashboard.html')
+class TotemSenhaView(TemplateView):
+    template_name = 'totem/senha_gerada.html'
 
 
-def totem(request):
-    return render(request, 'totem/escolha_atendimento.html')
+class PainelFilaView(TemplateView):
+    template_name = 'display/painel_fila.html'
 
-def formulario_cliente(request, tipo):
 
-    if request.method == 'POST':
-
-        form = ClienteForm(request.POST)
-
-        if form.is_valid():
-
-            request.session['tipo_atendimento'] = tipo
-            request.session['nome'] = form.cleaned_data['nome']
-            request.session['email'] = form.cleaned_data['email']
-            request.session['whatsapp'] = form.cleaned_data['whatsapp']
-
-            return redirect('senhaGerada')
-
-    else:
-        form = ClienteForm()
-
-    return render(request, 'totem/dados_cliente.html', {
-        'form': form,
-        'tipo': tipo
-    })
-
-def senhaGerada(request):
-    
-    nome = request.session.get('nome')
-    tipo = request.session.get('tipo_atendimento')
-
-    return render(request, 'totem/senha_gerada.html', {
-        'nome': nome,
-        'tipo': tipo
-    })
+class AdminDashboardView(TemplateView):
+    template_name = 'admin_painel/dashboard.html'
