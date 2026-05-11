@@ -1,4 +1,11 @@
 from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
+from django.urls import reverse
+from django.contrib import messages
+from django.utils import timezone
+from django.db.models import Q
+from filas.models import Categoria, Senha
+from .forms import ClienteForm
 
 
 class HomeView(TemplateView):
@@ -7,6 +14,43 @@ class HomeView(TemplateView):
 
 class DisplayView(TemplateView):
     template_name = 'display/painel_fila.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Buscar senha atual sendo atendida
+        senha_atual = Senha.objects.filter(
+            status='EM_ATENDENDO'
+        ).select_related('categoria').first()
+
+        if senha_atual:
+            context['senha_atual'] = {
+                'codigo': senha_atual.codigo,
+                'tipo': senha_atual.categoria.nome,
+                'cliente_nome': senha_atual.cliente_nome,
+            }
+        else:
+            context['senha_atual'] = None
+
+        # Buscar próximas senhas na fila (aguardando)
+        proximas_senhas = Senha.objects.filter(
+            Q(status='AGUARDANDO') | Q(status__isnull=True)
+        ).select_related('categoria').order_by(
+            '-categoria__prioridade',  # Maior prioridade primeiro
+            'criada_em'  # Depois por ordem de chegada
+        )[:10]  # Limitar a 10 próximas
+
+        context['proximas_senhas'] = [
+            {
+                'codigo': senha.codigo,
+                'tipo': senha.categoria.nome,
+                'cliente_nome': senha.cliente_nome,
+                'status': senha.status or 'AGUARDANDO',
+            }
+            for senha in proximas_senhas
+        ]
+
+        return context
 
 
 class AdminSelettoView(TemplateView):
@@ -17,12 +61,98 @@ class TotemView(TemplateView):
     template_name = 'totem/escolha_atendimento.html'
 
 
-class DadosClienteView(TemplateView):
+class DadosClienteView(FormView):
     template_name = 'totem/dados_cliente.html'
+    form_class = ClienteForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tipo = self.kwargs.get('tipo', '')
+        # Converter tipo da URL para nome legível
+        tipo_mapeamento = {
+            'prova-noivo': 'Prova Noivo',
+            'prioritario': 'Prioritário',
+            'locar-terno': 'Locar Terno',
+            'prova': 'Prova',
+            'retrabalho': 'Retrabalho',
+            'venda': 'Venda',
+        }
+        context['tipo'] = tipo_mapeamento.get(tipo, tipo.replace('-', ' ').title())
+        return context
+
+    def form_valid(self, form):
+        tipo = self.kwargs.get('tipo', '')
+
+        # Mapear tipo para categoria
+        tipo_para_categoria = {
+            'prova-noivo': 'Prova Noivo',
+            'prioritario': 'Prioritário',
+            'locar-terno': 'Locar Terno',
+            'prova': 'Prova',
+            'retrabalho': 'Retrabalho',
+            'venda': 'Venda',
+        }
+
+        categoria_nome = tipo_para_categoria.get(tipo)
+        if not categoria_nome:
+            messages.error(self.request, 'Tipo de atendimento inválido.')
+            return self.form_invalid(form)
+
+        try:
+            # Buscar categoria
+            categoria = Categoria.objects.get(
+                nome=categoria_nome,
+                fila__ativa=True,
+                ativa=True
+            )
+        except Categoria.DoesNotExist:
+            messages.error(self.request, 'Categoria de atendimento não encontrada.')
+            return self.form_invalid(form)
+
+        # Gerar código único da senha
+        hoje = timezone.now().date()
+        prefixo = categoria_nome[:2].upper()  # PN, PR, LT, etc.
+
+        # Contar senhas do dia para esta categoria
+        senhas_hoje = Senha.objects.filter(
+            categoria=categoria,
+            criada_em__date=hoje
+        ).count()
+
+        numero = senhas_hoje + 1
+        codigo = f"{prefixo}{numero:03d}"
+
+        # Salvar senha no banco
+        senha = Senha.objects.create(
+            codigo=codigo,
+            cliente_nome=form.cleaned_data['nome'],
+            cliente_telefone=form.cleaned_data['whatsapp'],
+            fila=categoria.fila,
+            categoria=categoria,
+        )
+
+        # Adicionar senha ao contexto da sessão para o próximo view
+        self.request.session['senha_gerada'] = {
+            'codigo': senha.codigo,
+            'tipo': categoria.nome,
+            'nome': senha.cliente_nome,
+        }
+
+        messages.success(self.request, f'Senha {senha.codigo} gerada com sucesso!')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('senha_gerada')
 
 
 class SenhaGeradaView(TemplateView):
     template_name = 'totem/senha_gerada.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        senha_data = self.request.session.get('senha_gerada', {})
+        context.update(senha_data)
+        return context
 
 
 class AcompanharFilaView(TemplateView):

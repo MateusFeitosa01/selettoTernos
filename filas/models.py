@@ -51,10 +51,16 @@ class Senha(models.Model):
         on_delete=models.CASCADE
         )
     
-    Categoria = models.ForeignKey(
+    categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
         null=False,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default='AGUARDANDO',
     )
 
     criada_em = models.DateTimeField(auto_now_add=True)
@@ -64,7 +70,7 @@ class Senha(models.Model):
         blank=True
         )
     
-    Finalizado_em = models.DateTimeField(
+    finalizado_em = models.DateTimeField(
         null=True,
         blank=True
         )

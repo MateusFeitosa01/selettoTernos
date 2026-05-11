@@ -5,6 +5,8 @@ from .views import (
     DadosClienteView,
     SenhaGeradaView,
     AcompanharFilaView,
+    DisplayView,
+    AdminSelettoView,
 )
 
 urlpatterns = [
@@ -32,5 +34,17 @@ urlpatterns = [
         'acompanhar-fila/',
         AcompanharFilaView.as_view(),
         name='acompanhar_fila'
+    ),
+
+    path(
+        'display/',
+        DisplayView.as_view(),
+        name='display'
+    ),
+
+    path(
+        'admin/',
+        AdminSelettoView.as_view(),
+        name='adminSeletto'
     ),
 ]
