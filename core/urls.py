@@ -1,37 +1,36 @@
 from django.urls import path
-from .views import *
+from .views import (
+    HomeView,
+    TotemView,
+    DadosClienteView,
+    SenhaGeradaView,
+    AcompanharFilaView,
+)
 
 urlpatterns = [
-
     path('', HomeView.as_view(), name='home'),
 
     path(
         'totem/',
-        TotemEscolhaView.as_view(),
+        TotemView.as_view(),
         name='totem'
     ),
 
     path(
-        'totem/dados/',
-        TotemDadosView.as_view(),
-        name='totem-dados'
+        'totem/dados-cliente/<str:tipo>/',
+        DadosClienteView.as_view(),
+        name='dados_cliente'
     ),
 
     path(
-        'totem/senha/',
-        TotemSenhaView.as_view(),
-        name='totem-senha'
+        'totem/senha-gerada/',
+        SenhaGeradaView.as_view(),
+        name='senha_gerada'
     ),
 
     path(
-        'painel/',
-        PainelFilaView.as_view(),
-        name='painel'
-    ),
-
-    path(
-        'dashboard/',
-        AdminDashboardView.as_view(),
-        name='dashboard'
+        'acompanhar-fila/',
+        AcompanharFilaView.as_view(),
+        name='acompanhar_fila'
     ),
 ]
