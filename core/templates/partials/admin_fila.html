@@ -1,0 +1,38 @@
+<div class="py-4 px-4 rounded-4 text-white" style="background-color: rgb(23, 23, 23);">
+
+    <h1>Fila de atendimento</h1>
+
+    {% for senha in fila %}
+
+    <div class="px-4 py-4 rounded-4 my-3" style="background-color: rgb(38, 38, 38);">
+
+        <div class="d-flex justify-content-between align-items-start">
+
+            <div class="d-flex gap-3 align-items-center">
+
+                <p class="fs-2">{{ senha.codigo }}</p>
+
+                <div class="d-flex flex-column">
+                    <span class="fs-6">{{ senha.categoria.nome }}</span>
+                    <span class="text-secondary">{{ senha.criada_em|date:"H:i" }}</span>
+                </div>
+
+            </div>
+
+            <div class="rounded-3 py-2 px-4" style="background-color: rgb(64,64,64);">
+                {{ senha.get_status_display|default:senha.status|title }}
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <p class="text-secondary py-4">
+        Nenhuma senha na fila no momento
+    </p>
+
+    {% endfor %}
+
+</div>

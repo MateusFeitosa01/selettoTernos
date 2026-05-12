@@ -16,43 +16,13 @@ Painel Seletto
     </div>
 
     <!-- CARDS -->
-    <div class="row g-4 justify-content-center mb-4">
+    <div
+        hx-get="{% url 'admin_stats_partial' %}"
+        hx-trigger="load, every 2s"
+        hx-target="this"
+        hx-swap="innerHTML">
 
-        <div class="col-4">
-            <div class="py-3 px-0 rounded-4 h-100" style="background-color: rgb(23, 23, 23);">
-                <div class="d-flex justify-content-between align-items-center px-4">
-                    <div class="d-flex flex-column">
-                        <p class="fs-4 text-secondary mb-0">Aguardando</p>
-                        <p class="fs-1 mb-0">{{ aguardando|default:0 }}</p>
-                    </div>
-                    <i class="bi bi-clock fs-1"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-4">
-            <div class="py-3 px-0 rounded-4 h-100" style="background-color: rgb(23, 23, 23);">
-                <div class="d-flex justify-content-between align-items-center px-4">
-                    <div class="d-flex flex-column">
-                        <p class="fs-4 text-secondary mb-0">Em andamento</p>
-                        <p class="fs-1 mb-0">{{ em_atendimento|default:0 }}</p>
-                    </div>
-                    <i class="bi bi-person fs-1"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-4">
-            <div class="py-3 px-0 rounded-4 h-100" style="background-color: rgb(23, 23, 23);">
-                <div class="d-flex justify-content-between align-items-center px-4">
-                    <div class="d-flex flex-column">
-                        <p class="fs-4 text-secondary mb-0">Atendidos</p>
-                        <p class="fs-1 mb-0">{{ atendidos|default:0 }}</p>
-                    </div>
-                    <i class="bi bi-check2-circle fs-1"></i>
-                </div>
-            </div>
-        </div>
+        {% include 'partials/admin_stats.html' %}
 
     </div>
 
@@ -124,89 +94,24 @@ Painel Seletto
     </div>
 
     <!-- ATENDIMENTO ATUAL -->
-    {% if senha_atual %}
-    <div class="bg-white text-black py-4 px-4 rounded-4 mb-4">
-        <h1 class="fs-3">Atendimento atual</h1>
+    <div
+        hx-get="{% url 'admin_atendimento_partial' %}"
+        hx-trigger="load, every 1s"
+        hx-target="this"
+        hx-swap="innerHTML">
 
-        <div class="row g-4">
+        {% include 'partials/admin_atendimento_atual.html' %}
 
-            <div class="col-6">
-                <div class="d-flex flex-column gap-2">
-                    <div class="d-flex gap-2">
-                        <h1 class="p-0" style="font-size: 5em;">
-                            {{ senha_atual.codigo }}
-                        </h1>
-
-                        <div class="mt-4">
-                            <p>{{ senha_atual.categoria.nome }}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p>Atendente: {{ senha_atual.atendente|default:"-" }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6">
-                <div class="rounded-4 py-3 px-4" style="background-color: rgb(245,245,245);">
-
-                    <p><i class="bi bi-person"></i> Dados Do Cliente</p>
-
-                    <div class="mt-2">
-                        <div>
-                            <span>Nome:</span>
-                            <p>{{ senha_atual.cliente_nome }}</p>
-                        </div>
-
-                        <div>
-                            <span>Email:</span>
-                            <p>{{ senha_atual.cliente_email|default:"-" }}</p>
-                        </div>
-
-                        <div>
-                            <span>Telefone:</span>
-                            <p>{{ senha_atual.cliente_telefone|default:"-" }}</p>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
     </div>
-    {% else %}
-        <p class="text-secondary mb-4">Nenhum atendimento em andamento</p>
-    {% endif %}
 
     <!-- FILA -->
-    <div class="py-4 px-4 rounded-4 text-white" style="background-color: rgb(23, 23, 23);">
-        <h1>Fila de atendimento</h1>
+    <div
+        hx-get="{% url 'admin_fila_partial' %}"
+        hx-trigger="load, every 2s"
+        hx-target="this"
+        hx-swap="innerHTML">
 
-        {% for senha in fila %}
-        <div class="px-4 py-4 rounded-4 my-3" style="background-color: rgb(38, 38, 38);">
-
-            <div class="d-flex justify-content-between align-items-start">
-
-                <div class="d-flex gap-3 align-items-center">
-                    <p class="fs-2">{{ senha.codigo }}</p>
-
-                    <div class="d-flex flex-column">
-                        <span class="fs-6">{{ senha.categoria.nome }}</span>
-                        <span class="text-secondary">{{ senha.criada_em|date:"H:i" }}</span>
-                    </div>
-                </div>
-
-                <div class="rounded-3 py-2 px-4" style="background-color: rgb(64,64,64);">
-                    {{ senha.get_status_display|default:senha.status|title }}
-                </div>
-
-            </div>
-
-        </div>
-        {% empty %}
-        <p class="text-secondary py-4">Nenhuma senha na fila no momento</p>
-        {% endfor %}
+        {% include 'partials/admin_fila.html' %}
 
     </div>
 

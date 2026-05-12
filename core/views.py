@@ -409,3 +409,57 @@ def fila_status_partial(request):
         'partials/fila_status.html',
         context
     )
+
+def admin_stats_partial(request):
+
+    context = {
+        'aguardando': Senha.objects.filter(status='AGUARDANDO').count(),
+        'em_atendimento': Senha.objects.filter(status='EM_ATENDENDO').count(),
+        'atendidos': Senha.objects.filter(status='FINALIZADO').count(),
+    }
+
+    return render(
+        request,
+        'partials/admin_stats.html',
+        context
+    )
+
+def admin_atendimento_partial(request):
+
+    senha_atual = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        status='EM_ATENDENDO'
+    ).first()
+
+    context = {
+        'senha_atual': senha_atual
+    }
+
+    return render(
+        request,
+        'partials/admin_atendimento_atual.html',
+        context
+    )
+
+def admin_fila_partial(request):
+
+    fila = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        Q(status='AGUARDANDO') |
+        Q(status='EM_ATENDENDO')
+    ).order_by(
+        '-categoria__prioridade',
+        'criada_em'
+    )
+
+    context = {
+        'fila': fila
+    }
+
+    return render(
+        request,
+        'partials/admin_fila.html',
+        context
+    )

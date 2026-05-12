@@ -13,6 +13,9 @@ from .views import (
     FinalizarSenhaView,
     display_partial,
     fila_status_partial,
+    admin_stats_partial,
+    admin_atendimento_partial,
+    admin_fila_partial,
 )
 
 urlpatterns = [
@@ -83,5 +86,23 @@ urlpatterns = [
         'fila-status-partial/',
         fila_status_partial,
         name='fila_status_partial'
+    ),
+
+    path(
+        'admin/stats-partial/',
+        admin_stats_partial,
+        name='admin_stats_partial'
+    ),
+
+    path(
+        'admin/atendimento-partial/',
+        admin_atendimento_partial,
+        name='admin_atendimento_partial'
+    ),
+
+    path(
+        'admin/fila-partial/',
+        admin_fila_partial,
+        name='admin_fila_partial'
     ),
 ]
