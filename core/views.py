@@ -359,3 +359,53 @@ def display_partial(request):
         'partials/display_content.html',
         context
     )
+
+def fila_status_partial(request):
+
+    senha_session = request.session.get('senha_gerada')
+
+    context = {
+        'posicao': 0,
+        'tempo_estimado': 0,
+    }
+
+    if not senha_session:
+        return render(
+            request,
+            'partials/fila_status.html',
+            context
+        )
+
+    senha = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        codigo=senha_session['codigo']
+    ).order_by('-id').first()
+
+    if senha:
+
+        fila = Senha.objects.filter(
+            categoria=senha.categoria,
+            status='AGUARDANDO'
+        ).order_by('criada_em')
+
+        posicao = 1
+
+        for index, item in enumerate(fila, start=1):
+
+            if item.id == senha.id:
+                posicao = index
+                break
+
+        tempo_estimado = posicao * 5
+
+        context.update({
+            'posicao': posicao,
+            'tempo_estimado': tempo_estimado,
+        })
+
+    return render(
+        request,
+        'partials/fila_status.html',
+        context
+    )

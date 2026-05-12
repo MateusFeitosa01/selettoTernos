@@ -1,0 +1,57 @@
+<div class="row g-3 mb-3">
+
+    <!-- Posição -->
+    <div class="col-6 d-flex">
+
+        <div class="card border-0 rounded-5 w-100 h-100">
+
+            <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                <p class="fw-semibold mb-2" style="font-size: 1rem;">
+                    <i class="bi bi-people"></i>
+                    Posição na fila
+                </p>
+
+                <h1 class="fw-bold mb-2" style="font-size: 3rem;">
+                    {{ posicao }}°
+                </h1>
+
+                {% if posicao == 1 %}
+                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                    Você é o próximo
+                </p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Tempo -->
+    <div class="col-6 d-flex">
+
+        <div class="card border-0 rounded-5 w-100 h-100">
+
+            <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                <p class="fw-semibold mb-2" style="font-size: 1rem;">
+                    <i class="bi bi-clock"></i>
+                    Tempo estimado
+                </p>
+
+                <h1 class="fw-bold mb-2" style="font-size: 3rem;">
+                    {{ tempo_estimado }} min
+                </h1>
+
+                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                    Aproximadamente
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

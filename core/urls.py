@@ -11,7 +11,8 @@ from .views import (
     ChamarProximaView,
     PularSenhaView,
     FinalizarSenhaView,
-    display_partial
+    display_partial,
+    fila_status_partial,
 )
 
 urlpatterns = [
@@ -76,5 +77,11 @@ urlpatterns = [
         'finalizar-senha/',
         FinalizarSenhaView.as_view(),
         name='finalizar_senha'
+    ),
+
+    path(
+        'fila-status-partial/',
+        fila_status_partial,
+        name='fila_status_partial'
     ),
 ]
