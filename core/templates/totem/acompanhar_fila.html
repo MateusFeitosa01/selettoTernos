@@ -46,14 +46,14 @@ Acompanhar fila
                     line-height: 1;
                 "
             >
-                PR002
-            </h1>
+                {{ senha }}
+            </h1> 
 
             <p 
                 class="text-secondary mb-0"
                 style="font-size: 1.3rem;"
             >
-                Prova Noivo
+                {{ tipo }}
             </p>
 
         </div>
@@ -81,16 +81,16 @@ Acompanhar fila
                             style="font-size: 3rem;"
                         >
 
-                            1°
+                            {{ posicao }}
                         </h1>
-
+                        {% if posicao == 1 %}
                         <p 
                             class="text-secondary mb-0"
                             style="font-size: 0.9rem;"
                         >
                             Você é o próximo
                         </p>
-
+                        {% endif %}
                     </div>
 
                 </div>
@@ -116,7 +116,7 @@ Acompanhar fila
                             class="fw-bold mb-2"
                             style="font-size: 3rem;"
                         >
-                            5 min
+                            {{ tempo_estimado }} min
                         </h1>
 
                         <p 

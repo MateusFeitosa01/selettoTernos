@@ -56,6 +56,47 @@ class DisplayView(TemplateView):
 class AdminSelettoView(TemplateView):
     template_name = 'adminSeletto/dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Contadores
+        aguardando = Senha.objects.filter(status='AGUARDANDO').count()
+
+        em_atendimento = Senha.objects.filter(
+            status='EM_ATENDENDO'
+        ).count()
+
+        atendidos = Senha.objects.filter(
+            status='FINALIZADO'
+        ).count()
+
+        # Atendimento atual
+        senha_atual = Senha.objects.select_related(
+            'categoria'
+        ).filter(
+            status='EM_ATENDENDO'
+        ).first()
+
+        # Fila
+        fila = Senha.objects.select_related(
+            'categoria'
+        ).filter(
+            Q(status='AGUARDANDO') |
+            Q(status='EM_ATENDENDO')
+        ).order_by(
+            '-categoria__prioridade',
+            'criada_em'
+        )
+
+        context.update({
+            'aguardando': aguardando,
+            'em_atendimento': em_atendimento,
+            'atendidos': atendidos,
+            'senha_atual': senha_atual,
+            'fila': fila,
+        })
+
+        return context
 
 class TotemView(TemplateView):
     template_name = 'totem/escolha_atendimento.html'
@@ -157,3 +198,46 @@ class SenhaGeradaView(TemplateView):
 
 class AcompanharFilaView(TemplateView):
     template_name = 'totem/acompanhar_fila.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Dados da sessão
+        senha_session = self.request.session.get('senha_gerada')
+
+        if not senha_session:
+            return context
+
+        try:
+            senha = Senha.objects.select_related('categoria').filter(
+            codigo=senha_session['codigo']
+            ).order_by('-id').first()
+
+            # Buscar todas as senhas aguardando da mesma categoria
+            fila = Senha.objects.filter(
+                categoria=senha.categoria,
+                status='AGUARDANDO'
+            ).order_by('criada_em')
+
+            # Calcular posição
+            posicao = 1
+
+            for index, item in enumerate(fila, start=1):
+                if item.id == senha.id:
+                    posicao = index
+                    break
+
+            # Tempo estimado
+            tempo_estimado = posicao * 5
+
+            context.update({
+                'senha': senha.codigo,
+                'tipo': senha.categoria.nome,
+                'posicao': posicao,
+                'tempo_estimado': tempo_estimado,
+            })
+
+        except Senha.DoesNotExist:
+            pass
+
+        return context
