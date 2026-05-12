@@ -1,0 +1,155 @@
+{% extends 'base/base_totem.html' %}
+{% load static %}
+
+{% block title %}
+Acompanhar fila
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-black min-vh-100 d-flex flex-column justify-content-center align-items-center text-white px-3 py-4">
+
+    <div class="w-100" style="max-width: 500px;">
+
+        <!-- Logo -->
+        <div class="text-center mb-4">
+
+            <img 
+                src="{% static 'img/logo.png' %}" 
+                alt="Seletto"
+                class="img-fluid mb-3"
+                style="width: 180px;"
+            >
+
+            <h1 
+                class="fw-bold"
+                style="font-size: 2rem;"
+            >
+                Acompanhamento da fila
+            </h1>
+
+        </div>
+
+        <!-- Senha -->
+        <div class="bg-white text-black rounded-5 text-center py-4 px-3 mb-3">
+
+            <p 
+                class="text-secondary fw-semibold mb-2"
+                style="font-size: 1rem;"
+            >
+                Sua senha
+            </p>
+
+            <h1 
+                class="fw-bold mb-1"
+                style="
+                    font-size: 5rem;
+                    line-height: 1;
+                "
+            >
+                PR002
+            </h1>
+
+            <p 
+                class="text-secondary mb-0"
+                style="font-size: 1.3rem;"
+            >
+                Prova Noivo
+            </p>
+
+        </div>
+
+        <!-- Grid -->
+        <div class="row g-3 mb-3">
+
+            <!-- Posição -->
+            <div class="col-6 d-flex">
+
+                <div class="card border-0 rounded-5 w-100 h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                        <p 
+                            class="fw-semibold mb-2"
+                            style="font-size: 1rem;"
+                        >
+                        <i class="bi bi-people"></i>
+                            Posição na fila
+                        </p>
+
+                        <h1 
+                            class="fw-bold mb-2"
+                            style="font-size: 3rem;"
+                        >
+
+                            1°
+                        </h1>
+
+                        <p 
+                            class="text-secondary mb-0"
+                            style="font-size: 0.9rem;"
+                        >
+                            Você é o próximo
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Tempo -->
+            <div class="col-6 d-flex">
+
+                <div class="card border-0 rounded-5 w-100 h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                        <p 
+                            class="fw-semibold mb-2"
+                            style="font-size: 1rem;"
+                        >
+                        <i class="bi bi-clock"></i>
+                            Tempo estimado
+                        </p>
+
+                        <h1 
+                            class="fw-bold mb-2"
+                            style="font-size: 3rem;"
+                        >
+                            5 min
+                        </h1>
+
+                        <p 
+                            class="text-secondary mb-0"
+                            style="font-size: 0.9rem;"
+                        >
+                            Aproximadamente
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Aviso -->
+        <div class="bg-dark rounded-5 text-center py-3 px-3">
+
+            <p 
+                class="mb-0 text-white"
+                style="
+                    font-size: 1rem;
+                    line-height: 1.5;
+                "
+            >
+                Mantenha-se próximo ao local de atendimento.
+                Você será chamado em breve.
+            </p>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

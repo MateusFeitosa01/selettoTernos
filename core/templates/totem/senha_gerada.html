@@ -6,7 +6,7 @@ Preencha seus dados
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
+<div class="container-fluid bg-black min-vh-100 py-2 d-flex flex-column justify-content-center align-items-center text-white">
         <div class="text-center mb-4">
           <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-2" />
           <p class="fs-1 mb-1">Sua senha</p>
@@ -18,9 +18,9 @@ Preencha seus dados
                 <p style="font-size: 32px;" class="text-secondary">{{tipo}}</p>
             </div>
             <div class="d-grid gap-3 mt-4 flex ">
-                <button type="submit" class="btn btn-light btn-lg rounded-4 py-3 fs-5">
-                    Ver Minha Posição na Fila
-                </button>
+                <a href="{% url 'acompanhar_fila' %}" class="btn btn-light btn-lg rounded-4 py-3 fs-5">
+                        Ver Minha Posição na Fila
+                    </a>
 
                 <a href="{% url 'totem' %}" class="btn btn-dark btn-lg rounded-4 py-3 fs-5 text-white">
                     Retirar Nova Senha
