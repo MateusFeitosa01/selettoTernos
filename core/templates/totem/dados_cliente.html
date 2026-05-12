@@ -72,6 +72,7 @@ Preencha seus dados
 
                         <input 
                             type="tel"
+                            id="telefone"
                             name="whatsapp"
                             value="{{ form.whatsapp.value|default:'' }}"
                             class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
@@ -103,4 +104,55 @@ Preencha seus dados
 
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const telefoneInput = document.getElementById('telefone');
+
+            telefoneInput.addEventListener('input', function (e) {
+
+                let valor = e.target.value;
+
+                // remove tudo que não for número
+                valor = valor.replace(/\D/g, '');
+
+                // limita a 11 números
+                valor = valor.substring(0, 11);
+
+                // formatação
+                if (valor.length > 10) {
+
+                    valor = valor.replace(
+                        /^(\d{2})(\d{5})(\d{4}).*/,
+                        '($1) $2-$3'
+                    );
+
+                } else if (valor.length > 5) {
+
+                    valor = valor.replace(
+                        /^(\d{2})(\d{4})(\d{0,4}).*/,
+                        '($1) $2-$3'
+                    );
+
+                } else if (valor.length > 2) {
+
+                    valor = valor.replace(
+                        /^(\d{2})(\d{0,5})/,
+                        '($1) $2'
+                    );
+
+                } else {
+
+                    valor = valor.replace(
+                        /^(\d*)/,
+                        '($1'
+                    );
+                }
+
+                e.target.value = valor;
+
+            });
+
+        });
+        </script>
 {% endblock %}

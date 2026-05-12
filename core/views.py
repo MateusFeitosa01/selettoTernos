@@ -381,3 +381,119 @@ def gerar_qr(request):
     buffer.seek(0)
     
     return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+def admin_stats_partial(request):
+
+    aguardando = Senha.objects.filter(
+        status='AGUARDANDO'
+    ).count()
+
+    em_atendimento = Senha.objects.filter(
+        status='EM_ATENDENDO'
+    ).count()
+
+    atendidos = Senha.objects.filter(
+        status='FINALIZADO'
+    ).count()
+
+    context = {
+        'aguardando': aguardando,
+        'em_atendimento': em_atendimento,
+        'atendidos': atendidos,
+    }
+
+    return render(
+        request,
+        'partials/admin_stats.html',
+        context
+    )
+
+def admin_atendimento_partial(request):
+
+    senha_atual = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        status='EM_ATENDENDO'
+    ).first()
+
+    context = {
+        'senha_atual': senha_atual
+    }
+
+    return render(
+        request,
+        'partials/admin_atendimento_atual.html',
+        context
+    )
+
+def admin_fila_partial(request):
+
+    fila = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        Q(status='AGUARDANDO') |
+        Q(status='EM_ATENDENDO')
+    ).order_by(
+        '-categoria__peso',
+        'criada_em'
+    )
+
+    context = {
+        'fila': fila
+    }
+
+    return render(
+        request,
+        'partials/admin_fila.html',
+        context
+    )
+
+def fila_status_partial(request):
+
+    senha_session = request.session.get('senha_gerada')
+
+    context = {
+        'posicao': 0,
+        'tempo_estimado': 0,
+    }
+
+    if not senha_session:
+        return render(
+            request,
+            'partials/fila_status.html',
+            context
+        )
+
+    senha = Senha.objects.select_related(
+        'categoria'
+    ).filter(
+        codigo=senha_session['codigo']
+    ).order_by('-id').first()
+
+    if senha:
+
+        fila = Senha.objects.filter(
+            categoria=senha.categoria,
+            status='AGUARDANDO'
+        ).order_by('criada_em')
+
+        posicao = 1
+
+        for index, item in enumerate(fila, start=1):
+
+            if item.id == senha.id:
+                posicao = index
+                break
+
+        tempo_estimado = posicao * 5
+
+        context.update({
+            'posicao': posicao,
+            'tempo_estimado': tempo_estimado,
+        })
+
+    return render(
+        request,
+        'partials/fila_status.html',
+        context
+    )
