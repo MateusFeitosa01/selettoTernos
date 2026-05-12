@@ -1,0 +1,64 @@
+{% extends 'base/base_admin.html' %}
+{% load static %}
+
+{% block title %}
+Lista de Clientes
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Todos os Clientes Registrados</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Categoria</th>
+                                    <th>Status</th>
+                                    <th>Data Criação</th>
+                                    <th>Atendente</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for senha in senhas %}
+                                <tr>
+                                    <td><strong>{{ senha.codigo }}</strong></td>
+                                    <td>{{ senha.cliente_nome }}</td>
+                                    <td>{{ senha.cliente_telefone }}</td>
+                                    <td>{{ senha.categoria.nome }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if senha.status == 'AGUARDANDO' %}bg-warning
+                                            {% elif senha.status == 'EM_ATENDENDO' %}bg-primary
+                                            {% elif senha.status == 'ATENDIDA' %}bg-success
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ senha.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ senha.criada_em|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ senha.atendente|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        Nenhum cliente registrado ainda.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

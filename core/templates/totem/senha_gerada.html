@@ -18,9 +18,10 @@ Preencha seus dados
                 <p style="font-size: 32px;" class="text-secondary">{{ tipo }}</p>
             </div>
             <div class="d-grid gap-3 mt-4 flex ">
-                <a href="{% url 'acompanhar_fila' %}" class="btn btn-light btn-lg rounded-4 py-3 fs-5">
-                        Ver Minha Posição na Fila
-                    </a>
+                <div class="text-center">
+                    <p class="text-white mb-2">Escaneie para acompanhar sua posição</p>
+                    <img src="{% url 'gerar_qr' %}" alt="QR Code" class="img-fluid" style="max-width: 200px;" />
+                </div>
 
                 <a href="{% url 'totem' %}" class="btn btn-dark btn-lg rounded-4 py-3 fs-5 text-white">
                     Retirar Nova Senha

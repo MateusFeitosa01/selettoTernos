@@ -17,6 +17,14 @@ class Categoria(models.Model):
 
     prioridade = models.IntegerField(default=0)
 
+    prefixo = models.CharField(max_length=10, default='A')  # Ex: PN, PR, A, FG
+
+    peso = models.IntegerField(default=1)  # Para ordenação na fila
+
+    tempo_estimado_min = models.IntegerField(default=10)  # em minutos
+
+    tempo_estimado_max = models.IntegerField(default=20)  # em minutos
+
     ativa = models.BooleanField(default=True)
 
     def __str__(self):

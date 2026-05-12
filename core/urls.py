@@ -11,7 +11,9 @@ from .views import (
     ChamarProximaView,
     PularSenhaView,
     FinalizarSenhaView,
-    display_partial
+    display_partial,
+    gerar_qr,
+    ListaClientesView
 )
 
 urlpatterns = [
@@ -76,5 +78,17 @@ urlpatterns = [
         'finalizar-senha/',
         FinalizarSenhaView.as_view(),
         name='finalizar_senha'
+    ),
+
+    path(
+        'gerar-qr/',
+        gerar_qr,
+        name='gerar_qr'
+    ),
+
+    path(
+        'lista-clientes/',
+        ListaClientesView.as_view(),
+        name='lista_clientes'
     ),
 ]

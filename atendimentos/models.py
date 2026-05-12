@@ -10,7 +10,7 @@ class Atendimento(models.Model):
         on_delete=models.CASCADE,
     )
 
-    atendendente = models.ForeignKey(
+    atendente = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )

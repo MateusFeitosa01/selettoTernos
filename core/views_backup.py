@@ -366,18 +366,12 @@ def display_partial(request):
 
 class ListaClientesView(TemplateView):
     template_name = "core/lista_clientes.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Buscar todas as senhas de todos os dias
+        senhas = Senha.objects.select_related(" categoria\).order_by(\-criada_em\)
 
-
-def gerar_qr(request):
-    """Gera QR code para acompanhar fila"""
-    url = request.build_absolute_uri(reverse('acompanhar_fila'))
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-    
-    return HttpResponse(buffer.getvalue(), content_type="image/png")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Buscar todas as senhas de todos os dias
+        senhas = Senha.objects.select_related(" categoria\).order_by(\-criada_em\)

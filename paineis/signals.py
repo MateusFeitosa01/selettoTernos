@@ -11,7 +11,7 @@ from atendimentos.models import Atendimento
 @receiver(post_save, sender=Senha)
 def atualizar_painel(sender,instance,**kwargs):
     
-    if instance.status != 'CHAMADO':
+    if instance.status != 'EM_ATENDENDO':
         return
 
     atendimento = Atendimento.objects.select_related(
