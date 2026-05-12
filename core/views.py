@@ -6,7 +6,77 @@ from django.utils import timezone
 from django.db.models import Q
 from filas.models import Categoria, Senha
 from .forms import ClienteForm
+from django.views import View
+from django.shortcuts import redirect
 
+class ChamarProximaView(View):
+    def post(self, request):
+
+        atendente = request.POST.get('atendente')
+
+        if not atendente:
+            return redirect('adminSeletto')
+
+        # finaliza atendimento atual (se existir)
+        Senha.objects.filter(
+            status='EM_ATENDENDO'
+        ).update(
+            status='ATENDIDA',
+            finalizado_em=timezone.now()
+        )
+
+        # pega próxima senha
+        senha = Senha.objects.filter(
+            status='AGUARDANDO'
+        ).order_by(
+            '-categoria__prioridade',
+            'criada_em'
+        ).first()
+
+        if not senha:
+            return redirect('adminSeletto')
+
+        # atualiza senha atual
+        senha.status = 'EM_ATENDENDO'
+        senha.atendente = atendente
+        senha.chamada_em = timezone.now()
+        senha.save()
+
+        return redirect('adminSeletto')
+
+class PularSenhaView(View):
+    def post(self, request):
+        senha_atual = Senha.objects.filter(
+            status='EM_ATENDENDO'
+        ).first()
+
+        if not senha_atual:
+            return redirect('adminSeletto')
+
+        # volta para fila
+        senha_atual.status = 'AGUARDANDO'
+        senha_atual.atendente = None
+        senha_atual.chamada_em = None
+        senha_atual.save()
+
+        return redirect('adminSeletto')
+
+
+class FinalizarSenhaView(View):
+    def post(self, request):
+        senha_atual = Senha.objects.filter(
+            status='EM_ATENDENDO'
+        ).first()
+
+        if not senha_atual:
+            return redirect('adminSeletto')
+
+        # finaliza atendimento
+        senha_atual.status = 'FINALIZADO'
+        senha_atual.finalizado_em = timezone.now()
+        senha_atual.save()
+
+        return redirect('adminSeletto')
 
 class HomeView(TemplateView):
     template_name = 'home/index.html'

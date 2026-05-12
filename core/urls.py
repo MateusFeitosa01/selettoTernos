@@ -7,6 +7,9 @@ from .views import (
     AcompanharFilaView,
     DisplayView,
     AdminSelettoView,
+    ChamarProximaView,
+    PularSenhaView,
+    FinalizarSenhaView
 )
 
 urlpatterns = [
@@ -47,4 +50,8 @@ urlpatterns = [
         AdminSelettoView.as_view(),
         name='adminSeletto'
     ),
+    
+    path('chamar-proxima/', ChamarProximaView.as_view(), name='chamar_proxima'),
+    path('pular-senha/', PularSenhaView.as_view(), name='pular_senha'),
+    path('finalizar-senha/', FinalizarSenhaView.as_view(), name='finalizar_senha'),
 ]
