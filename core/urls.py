@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     HomeView,
     TotemView,
@@ -9,10 +10,12 @@ from .views import (
     AdminSelettoView,
     ChamarProximaView,
     PularSenhaView,
-    FinalizarSenhaView
+    FinalizarSenhaView,
+    display_partial
 )
 
 urlpatterns = [
+
     path('', HomeView.as_view(), name='home'),
 
     path(
@@ -46,12 +49,32 @@ urlpatterns = [
     ),
 
     path(
+        'display-partial/',
+        display_partial,
+        name='display_partial'
+    ),
+
+    path(
         'admin/',
         AdminSelettoView.as_view(),
         name='adminSeletto'
     ),
-    
-    path('chamar-proxima/', ChamarProximaView.as_view(), name='chamar_proxima'),
-    path('pular-senha/', PularSenhaView.as_view(), name='pular_senha'),
-    path('finalizar-senha/', FinalizarSenhaView.as_view(), name='finalizar_senha'),
+
+    path(
+        'chamar-proxima/',
+        ChamarProximaView.as_view(),
+        name='chamar_proxima'
+    ),
+
+    path(
+        'pular-senha/',
+        PularSenhaView.as_view(),
+        name='pular_senha'
+    ),
+
+    path(
+        'finalizar-senha/',
+        FinalizarSenhaView.as_view(),
+        name='finalizar_senha'
+    ),
 ]

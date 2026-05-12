@@ -1,5 +1,4 @@
 {% extends 'base/base_display.html' %}
-
 {% load static %}
 
 {% block title %}
@@ -7,49 +6,25 @@ Display
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
-        <div class="text-center mb-2">
-          <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-2" />
-          <p class="fs-2 mb-1">Atendimento</p>
-        </div>
+<div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
 
-            <div class=" p-4 rounded-4 mb-2 " style="background-color: rgb(23, 23, 23); width: 1100px;  text-align: center;">
-                {% if senha_atual %}
-                    <p class="text-white" style="font-size: 7em;">
-                        {{ senha_atual.codigo }}
-                    </p>
-                    <p class="text-secondary" style="font-size: 2em;">
-                        {{ senha_atual.tipo }}
-                    </p>
-                {% else %}
-                    <p class="text-secondary p-3" style="font-size: 4em; ">
-                        Aguardando próximo atendimento...
-                    </p>
-                {% endif %}
-            </div>
+    <div class="text-center mb-2">
+        <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class="mx-auto mb-2"/>
 
-        <div class="w-100" style="max-width: 1100px;">
-            <h1 style="font-size: 2em;" class="mb-3 text-start">Próximas senhas</h1>
-
-            <div class="row g-4">
-                {% for senha in proximas_senhas %}
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="d-flex flex-column justify-content-center align-items-center py-3 rounded-4 h-100"
-                        style="background-color: rgb(23, 23, 23);">
-                        <h1 class="fw-bold" style="font-size: 3em;">{{ senha.codigo }}</h1>
-                        <p class="mb-1">{{ senha.status|title }}</p>
-                        <p class="text-secondary mb-0">{{ senha.tipo }}</p>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <div class="d-flex flex-column justify-content-center align-items-center py-5 rounded-4 h-100"
-                        style="background-color: rgb(23, 23, 23);">
-                        <p class="text-secondary mb-0" style="font-size: 1.5em;">Nenhuma senha na fila</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+        <p class="fs-2 mb-1">
+            Atendimento
+        </p>
     </div>
+
+    <div
+        hx-get="{% url 'display_partial' %}"
+        hx-trigger="load, every 3s"
+        hx-target="this"
+        hx-swap="innerHTML">
+
+        {% include 'partials/display_content.html' %}
+
+    </div>
+
+</div>
 {% endblock %}

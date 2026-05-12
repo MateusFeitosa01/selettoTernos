@@ -311,3 +311,51 @@ class AcompanharFilaView(TemplateView):
             pass
 
         return context
+    
+from django.shortcuts import render
+
+
+def display_partial(request):
+
+    # senha atual
+    senha_atual_obj = Senha.objects.filter(
+        status='EM_ATENDENDO'
+    ).select_related('categoria').first()
+
+    if senha_atual_obj:
+        senha_atual = {
+            'codigo': senha_atual_obj.codigo,
+            'tipo': senha_atual_obj.categoria.nome,
+            'cliente_nome': senha_atual_obj.cliente_nome,
+        }
+    else:
+        senha_atual = None
+
+    # próximas senhas
+    proximas_senhas_obj = Senha.objects.filter(
+        Q(status='AGUARDANDO') | Q(status__isnull=True)
+    ).select_related('categoria').order_by(
+        '-categoria__prioridade',
+        'criada_em'
+    )[:10]
+
+    proximas_senhas = [
+        {
+            'codigo': senha.codigo,
+            'tipo': senha.categoria.nome,
+            'cliente_nome': senha.cliente_nome,
+            'status': senha.status or 'AGUARDANDO',
+        }
+        for senha in proximas_senhas_obj
+    ]
+
+    context = {
+        'senha_atual': senha_atual,
+        'proximas_senhas': proximas_senhas
+    }
+
+    return render(
+        request,
+        'partials/display_content.html',
+        context
+    )
