@@ -29,53 +29,69 @@ Display
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-        let ultimaSenha = null;
+    let ultimaSenha = null;
 
-        function verificarMudancaSenha() {
+    function verificarMudancaSenha() {
 
-            const senhaElement = document.querySelector('#senha-atual-codigo');
+        const senhaElement = document.querySelector('#senha-atual-codigo');
 
-            if (!senhaElement) {
-                return;
-            }
-
-            const senhaAtual = senhaElement.innerText.trim();
-
-            // primeira execução
-            if (ultimaSenha === null) {
-                ultimaSenha = senhaAtual;
-                return;
-            }
-
-            // mudou a senha
-            if (senhaAtual !== ultimaSenha) {
-
-                ultimaSenha = senhaAtual;
-
-                tocarSom();
-
-                // opcional: voz
-                anunciarSenha(senhaAtual);
-            }
+        // Se não existir senha atual
+        if (!senhaElement) {
+            return;
         }
 
-        // verifica após atualizações do HTMX
-        document.body.addEventListener('htmx:afterSwap', function () {
-            verificarMudancaSenha();
-        });
+        const senhaAtual = senhaElement.innerText.trim();
 
+        // Primeira execução
+        if (ultimaSenha === null) {
+            ultimaSenha = senhaAtual;
+            return;
+        }
+
+        // Se mudou a senha
+        if (senhaAtual !== ultimaSenha) {
+
+            ultimaSenha = senhaAtual;
+
+            // toca som e depois anuncia
+            tocarSom(() => {
+                anunciarSenha(senhaAtual);
+            });
+        }
+    }
+
+    // Detecta atualização do HTMX
+    document.body.addEventListener('htmx:afterSwap', function () {
+        verificarMudancaSenha();
     });
 
-    function tocarSom() {
+});
 
-        const audio = new Audio('{% static "audio/notification.mp3" %}');   
+function tocarSom(callback) {
 
-        audio.play().catch(() => {
+    const audio = new Audio('{% static "audio/notification.mp3" %}');
+
+    audio.play()
+        .then(() => {
+
+            // Quando terminar o som
+            audio.onended = () => {
+
+                if (callback) {
+                    callback();
+                }
+            };
+
+        })
+        .catch(() => {
 
             // fallback beep
-            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const context = new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
 
             const oscillator = context.createOscillator();
 
@@ -85,29 +101,70 @@ Display
 
             gainNode.connect(context.destination);
 
-            oscillator.frequency.value = 800;
+            oscillator.frequency.setValueAtTime(
+                800,
+                context.currentTime
+            );
 
-            gainNode.gain.value = 0.2;
+            oscillator.frequency.setValueAtTime(
+                600,
+                context.currentTime + 0.1
+            );
 
-            oscillator.start();
+            gainNode.gain.setValueAtTime(
+                0.3,
+                context.currentTime
+            );
 
-            oscillator.stop(context.currentTime + 0.4);
+            gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                context.currentTime + 0.5
+            );
+
+            oscillator.start(context.currentTime);
+
+            oscillator.stop(context.currentTime + 0.5);
+
+            if (callback) {
+                setTimeout(callback, 600);
+            }
         });
+}
+
+function anunciarSenha(senha) {
+
+    const synth = window.speechSynthesis;
+
+    if (!synth) {
+        return;
     }
 
-    function anunciarSenha(senha) {
+    // Cancela falas anteriores
+    synth.cancel();
 
-        if (!window.speechSynthesis) {
-            return;
-        }
+    const mensagem = new SpeechSynthesisUtterance(
+        `Senha ${formatarSenha(senha)}. Dirija-se ao atendimento.`
+    );
 
-        const mensagem = new SpeechSynthesisUtterance(
-            `Senha ${senha}, dirigir-se ao atendimento`
-        );
+    mensagem.lang = 'pt-BR';
 
-        mensagem.lang = 'pt-BR';
+    // velocidade
+    mensagem.rate = 0.9;
 
-        window.speechSynthesis.speak(mensagem);
-    }
+    // tom
+    mensagem.pitch = 1;
+
+    // volume
+    mensagem.volume = 1;
+
+    synth.speak(mensagem);
+}
+
+function formatarSenha(senha) {
+
+    // separa letras e números
+    // PR001 -> P R 0 0 1
+    return senha.split('').join(' ');
+}
 </script>
 {% endblock %}
