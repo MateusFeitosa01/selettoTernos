@@ -208,26 +208,33 @@ class DadosClienteView(FormView):
         }
 
         categoria_nome = tipo_para_categoria.get(tipo)
+
         if not categoria_nome:
-            messages.error(self.request, 'Tipo de atendimento inválido.')
+            messages.error(
+                self.request,
+                'Tipo de atendimento inválido.'
+            )
             return self.form_invalid(form)
 
-        try:
-            # Buscar categoria
-            categoria = Categoria.objects.get(
-                nome=categoria_nome,
-                fila__ativa=True,
-                ativa=True
+        # Buscar categoria
+        categoria = Categoria.objects.filter(
+            nome=categoria_nome,
+            fila__ativa=True,
+            ativa=True
+        ).first()
+
+        if not categoria:
+            messages.error(
+                self.request,
+                'Categoria de atendimento não encontrada.'
             )
-        except Categoria.DoesNotExist:
-            messages.error(self.request, 'Categoria de atendimento não encontrada.')
             return self.form_invalid(form)
 
         # Gerar código único da senha
         hoje = timezone.now().date()
-        prefixo = categoria.prefixo  # Usar prefixo da categoria
+        prefixo = categoria.prefixo
 
-        # Contar senhas do dia para esta categoria
+        # Contar senhas do dia
         senhas_hoje = Senha.objects.filter(
             categoria=categoria,
             criada_em__date=hoje
@@ -236,7 +243,7 @@ class DadosClienteView(FormView):
         numero = senhas_hoje + 1
         codigo = f"{prefixo}{numero:03d}"
 
-        # Salvar senha no banco
+        # Criar senha
         senha = Senha.objects.create(
             codigo=codigo,
             cliente_nome=form.cleaned_data['nome'],
@@ -245,14 +252,18 @@ class DadosClienteView(FormView):
             categoria=categoria,
         )
 
-        # Adicionar senha ao contexto da sessão para o próximo view
+        # Salvar sessão
         self.request.session['senha_gerada'] = {
             'codigo': senha.codigo,
             'tipo': categoria.nome,
             'nome': senha.cliente_nome,
         }
 
-        messages.success(self.request, f'Senha {senha.codigo} gerada com sucesso!')
+        messages.success(
+            self.request,
+            f'Senha {senha.codigo} gerada com sucesso!'
+        )
+
         return super().form_valid(form)
 
     def get_success_url(self):
