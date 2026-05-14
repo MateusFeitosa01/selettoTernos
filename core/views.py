@@ -107,7 +107,7 @@ class DisplayView(TemplateView):
 
         # Buscar próximas senhas na fila (aguardando)
         proximas_senhas = Senha.objects.filter(
-            Q(status='AGUARDANDO') | Q(status__isnull=True)
+            status='AGUARDANDO'
         ).select_related('categoria').order_by(
             '-categoria__peso',  # Maior peso primeiro
             'criada_em'  # Depois por ordem de chegada
@@ -347,7 +347,7 @@ def display_partial(request):
 
     # próximas senhas
     proximas_senhas_obj = Senha.objects.filter(
-        Q(status='AGUARDANDO') | Q(status__isnull=True)
+        status='AGUARDANDO'
     ).select_related('categoria').order_by(
         '-categoria__peso',
         'criada_em'
