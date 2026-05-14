@@ -61,7 +61,7 @@ urlpatterns = [
     ),
 
     path(
-        'admin/',
+        'adminSeletto/',
         AdminSelettoView.as_view(),
         name='adminSeletto'
     ),
@@ -97,19 +97,19 @@ urlpatterns = [
     ),
 
     path(
-        'admin/stats-partial/',
+        'adminSeletto/stats-partial/',
         admin_stats_partial,
         name='admin_stats_partial'
     ),
 
     path(
-        'admin/atendimento-partial/',
+        'adminSeletto/atendimento-partial/',
         admin_atendimento_partial,
         name='admin_atendimento_partial'
     ),
 
     path(
-        'admin/fila-partial/',
+        'adminSeletto/fila-partial/',
         admin_fila_partial,
         name='admin_fila_partial'
     ),
