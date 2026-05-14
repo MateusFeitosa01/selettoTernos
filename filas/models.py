@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 
 class Fila(models.Model):
     nome = models.CharField(max_length=100)
@@ -40,6 +41,8 @@ class Senha(models.Model):
     )
     
     codigo = models.CharField(max_length=20)
+
+    token = models.UUIDField(default=uuid.uuid4, editable=False)
 
     cliente_nome = models.CharField(
         max_length=100,

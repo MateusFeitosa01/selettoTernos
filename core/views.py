@@ -285,6 +285,16 @@ class SenhaGeradaView(TemplateView):
         context = super().get_context_data(**kwargs)
         senha_data = self.request.session.get('senha_gerada', {})
         context.update(senha_data)
+        
+        # Buscar a senha gerada para pegar o token
+        if 'codigo' in senha_data:
+            try:
+                senha = Senha.objects.filter(codigo=senha_data['codigo']).order_by('-id').first()
+                if senha:
+                    context['token'] = str(senha.token)
+            except Senha.DoesNotExist:
+                pass
+        
         return context
 
 
@@ -294,43 +304,54 @@ class AcompanharFilaView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Dados da sessão
-        senha_session = self.request.session.get('senha_gerada')
+        # Buscar senha pelo token da URL ou pela sessão
+        token = self.kwargs.get('token')
+        
+        if token:
+            # Token vem da URL (QR code)
+            try:
+                senha = Senha.objects.select_related('categoria').get(token=token)
+            except Senha.DoesNotExist:
+                return context
+        else:
+            # Fallback para sessão (compatibilidade)
+            senha_session = self.request.session.get('senha_gerada')
+            if not senha_session:
+                return context
+            
+            try:
+                senha = Senha.objects.select_related('categoria').filter(
+                    codigo=senha_session['codigo']
+                ).order_by('-id').first()
+                
+                if not senha:
+                    return context
+            except Senha.DoesNotExist:
+                return context
 
-        if not senha_session:
-            return context
+        # Buscar todas as senhas aguardando da mesma categoria
+        fila = Senha.objects.filter(
+            categoria=senha.categoria,
+            status='AGUARDANDO'
+        ).order_by('criada_em')
 
-        try:
-            senha = Senha.objects.select_related('categoria').filter(
-            codigo=senha_session['codigo']
-            ).order_by('-id').first()
+        # Calcular posição
+        posicao = 1
+        for index, item in enumerate(fila, start=1):
+            if item.id == senha.id:
+                posicao = index
+                break
 
-            # Buscar todas as senhas aguardando da mesma categoria
-            fila = Senha.objects.filter(
-                categoria=senha.categoria,
-                status='AGUARDANDO'
-            ).order_by('criada_em')
+        # Tempo estimado
+        tempo_estimado = posicao * 5
 
-            # Calcular posição
-            posicao = 1
-
-            for index, item in enumerate(fila, start=1):
-                if item.id == senha.id:
-                    posicao = index
-                    break
-
-            # Tempo estimado
-            tempo_estimado = posicao * 5
-
-            context.update({
-                'senha': senha.codigo,
-                'tipo': senha.categoria.nome,
-                'posicao': posicao,
-                'tempo_estimado': tempo_estimado,
-            })
-
-        except Senha.DoesNotExist:
-            pass
+        context.update({
+            'senha': senha.codigo,
+            'tipo': senha.categoria.nome,
+            'posicao': posicao,
+            'tempo_estimado': tempo_estimado,
+            'token': senha.token,
+        })
 
         return context
     
@@ -388,8 +409,16 @@ class ListaClientesView(TemplateView):
 
 
 def gerar_qr(request):
-    """Gera QR code para acompanhar fila"""
-    url = request.build_absolute_uri(reverse('acompanhar_fila'))
+    """Gera QR code para acompanhar fila com token específico"""
+    token = request.GET.get('token')
+    
+    if token:
+        # Gerar URL com token específico
+        url = request.build_absolute_uri(reverse('acompanhar_fila_token', kwargs={'token': token}))
+    else:
+        # Fallback para URL genérica (compatibilidade)
+        url = request.build_absolute_uri(reverse('acompanhar_fila'))
+    
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(url)
     qr.make(fit=True)
@@ -469,47 +498,67 @@ def admin_fila_partial(request):
 
 def fila_status_partial(request):
 
-    senha_session = request.session.get('senha_gerada')
-
     context = {
         'posicao': 0,
         'tempo_estimado': 0,
     }
 
-    if not senha_session:
-        return render(
-            request,
-            'partials/fila_status.html',
-            context
-        )
+    # Buscar pela token da query string ou pela sessão
+    token = request.GET.get('token')
+    
+    if token:
+        try:
+            senha = Senha.objects.select_related(
+                'categoria'
+            ).get(token=token)
+        except Senha.DoesNotExist:
+            return render(
+                request,
+                'partials/fila_status.html',
+                context
+            )
+    else:
+        # Fallback para sessão
+        senha_session = request.session.get('senha_gerada')
+        
+        if not senha_session:
+            return render(
+                request,
+                'partials/fila_status.html',
+                context
+            )
+        
+        senha = Senha.objects.select_related(
+            'categoria'
+        ).filter(
+            codigo=senha_session['codigo']
+        ).order_by('-id').first()
+        
+        if not senha:
+            return render(
+                request,
+                'partials/fila_status.html',
+                context
+            )
 
-    senha = Senha.objects.select_related(
-        'categoria'
-    ).filter(
-        codigo=senha_session['codigo']
-    ).order_by('-id').first()
+    # Buscar todas as senhas aguardando da mesma categoria
+    fila = Senha.objects.filter(
+        categoria=senha.categoria,
+        status='AGUARDANDO'
+    ).order_by('criada_em')
 
-    if senha:
+    posicao = 1
+    for index, item in enumerate(fila, start=1):
+        if item.id == senha.id:
+            posicao = index
+            break
 
-        fila = Senha.objects.filter(
-            categoria=senha.categoria,
-            status='AGUARDANDO'
-        ).order_by('criada_em')
+    tempo_estimado = posicao * 5
 
-        posicao = 1
-
-        for index, item in enumerate(fila, start=1):
-
-            if item.id == senha.id:
-                posicao = index
-                break
-
-        tempo_estimado = posicao * 5
-
-        context.update({
-            'posicao': posicao,
-            'tempo_estimado': tempo_estimado,
-        })
+    context.update({
+        'posicao': posicao,
+        'tempo_estimado': tempo_estimado,
+    })
 
     return render(
         request,

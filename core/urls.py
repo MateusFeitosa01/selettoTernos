@@ -49,6 +49,12 @@ urlpatterns = [
     ),
 
     path(
+        'acompanhar-fila/<uuid:token>/',
+        AcompanharFilaView.as_view(),
+        name='acompanhar_fila_token'
+    ),
+
+    path(
         'display/',
         DisplayView.as_view(),
         name='display'
