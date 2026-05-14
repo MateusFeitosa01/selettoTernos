@@ -60,9 +60,9 @@ Acompanhar fila
 
         <!-- Grid -->
         <div
+            id="display-content"
             hx-get="{% url 'fila_status_partial' %}"
-            hx-trigger="load, every 2s"
-            hx-target="this"
+            hx-trigger="load, every 3s"
             hx-swap="innerHTML">
 
             {% include 'partials/fila_status.html' %}

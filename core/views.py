@@ -359,7 +359,7 @@ def display_partial(request):
     ).select_related('categoria').order_by(
         '-categoria__peso',
         'criada_em'
-    )[:10]
+    )[:3]
 
     proximas_senhas = [
         {
