@@ -190,6 +190,10 @@ class DadosClienteView(FormView):
             'prova': 'Prova',
             'retrabalho': 'Retrabalho',
             'venda': 'Venda',
+            'troca': 'Troca',
+            'retirada': 'Retirada',
+            'gerente': 'Falar com gerente',
+            'devolucao': 'Devolução',
         }
         context['tipo'] = tipo_mapeamento.get(tipo, tipo.replace('-', ' ').title())
         return context
@@ -205,6 +209,10 @@ class DadosClienteView(FormView):
             'prova': 'Prova',
             'retrabalho': 'Retrabalho',
             'venda': 'Venda',
+            'troca': 'Troca',
+            'retirada': 'Retirada',
+            'gerente': 'Falar com gerente',
+            'devolucao': 'Devolução',
         }
 
         categoria_nome = tipo_para_categoria.get(tipo)
@@ -218,7 +226,7 @@ class DadosClienteView(FormView):
 
         # Buscar categoria
         categoria = Categoria.objects.filter(
-            nome=categoria_nome,
+            nome__iexact=categoria_nome,
             fila__ativa=True,
             ativa=True
         ).first()
