@@ -12,18 +12,23 @@ class Command(BaseCommand):
         )
 
         # Categorias com configurações
+        # Peso: quanto maior, maior a prioridade
+        # 5 = Prova noivo (máxima)
+        # 4 = Prioritário
+        # 2 = Restante
+        # 1 = Devolução (mínima)
         categorias_data = [
             {
                 'nome': 'Prova noivo',
                 'prefixo': 'PN',
-                'peso': 3,
+                'peso': 5,
                 'tempo_estimado_min': 30,
                 'tempo_estimado_max': 60,
             },
             {
                 'nome': 'Prioritário',
                 'prefixo': 'PR',
-                'peso': 3,
+                'peso': 4,
                 'tempo_estimado_min': 20,
                 'tempo_estimado_max': 20,
             },
