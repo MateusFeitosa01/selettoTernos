@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Login - Seletto{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-black min-vh-100 d-flex align-items-center justify-content-center text-white py-5">
+    <div class="card bg-dark border-0 rounded-5 shadow-lg" style="max-width: 480px; width: 100%;">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <img src="{% static 'img/logo.png' %}" alt="Seletto" width="120" class="mb-3" />
+                <h1 class="h3 mb-3">Painel Seletto</h1>
+                <p class="text-secondary">Informe suas credenciais para acessar o painel.</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-warning text-black">
+                    Por favor corrija os erros abaixo.
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Usuário</label>
+                    <input type="text" name="username" autofocus required id="id_username" class="form-control form-control-lg rounded-4 bg-black text-white border-0" placeholder="Digite seu usuário">
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_password" class="form-label">Senha</label>
+                    <input type="password" name="password" required id="id_password" class="form-control form-control-lg rounded-4 bg-black text-white border-0" placeholder="Digite sua senha">
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-light btn-lg rounded-4">Entrar</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4 text-secondary">
+                <a href="/" class="text-white text-decoration-none">Voltar para o início</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

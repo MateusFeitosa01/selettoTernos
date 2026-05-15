@@ -36,13 +36,14 @@ class Senha(models.Model):
         ('AGUARDANDO', 'Aguardando'),
         ('CHAMADA', 'Chamada'),
         ('EM_ATENDENDO', 'Em Atendendo'),
+        ('FINALIZADO', 'Finalizado'),
         ('ATENDIDA', 'Atendida'),
         ('CANCELADA', 'Cancelada'),
     )
     
-    codigo = models.CharField(max_length=20)
+    codigo = models.CharField(max_length=20, unique=True, db_index=True)
 
-    token = models.UUIDField(default=uuid.uuid4, editable=False)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
 
     cliente_nome = models.CharField(
         max_length=100,
@@ -50,6 +51,12 @@ class Senha(models.Model):
         blank=False,
         
         )
+
+    cliente_email = models.EmailField(
+        max_length=254,
+        null=True,
+        blank=True,
+    )
 
     cliente_telefone = models.CharField(
         max_length=20,

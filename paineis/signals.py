@@ -17,7 +17,8 @@ def atualizar_painel(sender,instance,**kwargs):
     atendimento = Atendimento.objects.select_related(
         'atendente'
     ).filter(
-        senha=instance
+        senha=instance,
+        ativo=True
     ).first()
 
     if not atendimento:

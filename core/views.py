@@ -4,56 +4,95 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from django.db import transaction, IntegrityError
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from filas.models import Categoria, Senha
+from atendimentos.models import Atendimento
 from .forms import ClienteForm
 from django.views import View
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 import qrcode
 from io import BytesIO
 from django.http import HttpResponse
+from functools import wraps
 
+
+def atendente_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        if request.user.tipo_usuario not in ('admin', 'Atendente'):
+            messages.error(
+                request,
+                'Acesso restrito. Faça login com uma conta de atendente ou administrador.'
+            )
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+@method_decorator(atendente_required, name='dispatch')
 class ChamarProximaView(View):
     def post(self, request):
 
-        atendente = request.POST.get('atendente')
+        atendente = request.user.username if request.user.is_authenticated else None
 
         if not atendente:
             return redirect('adminSeletto')
 
-        # finaliza atendimento atual (se existir)
-        Senha.objects.filter(
-            status='EM_ATENDENDO'
-        ).update(
-            status='ATENDIDA',
-            finalizado_em=timezone.now()
-        )
+        active_atendimento = Atendimento.objects.filter(
+            atendente=request.user,
+            ativo=True
+        ).select_related('senha').first()
 
-        # pega próxima senha
-        senha = Senha.objects.filter(
-            status='AGUARDANDO'
-        ).order_by(
-            '-categoria__peso',
-            'criada_em'
-        ).first()
-
-        if not senha:
+        if active_atendimento:
+            messages.warning(
+                request,
+                'Finalize o atendimento atual antes de chamar a próxima senha.'
+            )
             return redirect('adminSeletto')
 
-        # atualiza senha atual
-        senha.status = 'EM_ATENDENDO'
-        senha.atendente = atendente
-        senha.chamada_em = timezone.now()
-        senha.save()
+        with transaction.atomic():
+            # pega próxima senha
+            senha = Senha.objects.select_for_update().filter(
+                status='AGUARDANDO'
+            ).order_by(
+                '-categoria__peso',
+                'criada_em'
+            ).first()
+
+            if not senha:
+                messages.info(request, 'Nenhuma senha aguardando no momento.')
+                return redirect('adminSeletto')
+
+            # atualiza senha atual
+            senha.status = 'EM_ATENDENDO'
+            senha.atendente = atendente
+            senha.chamada_em = timezone.now()
+            senha.save()
+
+            Atendimento.objects.create(
+                senha=senha,
+                atendente=request.user
+            )
 
         return redirect('adminSeletto')
 
+@method_decorator(atendente_required, name='dispatch')
 class PularSenhaView(View):
     def post(self, request):
         senha_atual = Senha.objects.filter(
-            status='EM_ATENDENDO'
-        ).first()
+            status='EM_ATENDENDO',
+            atendente=request.user.username
+        ).order_by('chamada_em').first()
 
         if not senha_atual:
+            messages.warning(
+                request,
+                'Nenhum atendimento ativo encontrado para o seu usuário.'
+            )
             return redirect('adminSeletto')
 
         # volta para fila
@@ -62,22 +101,44 @@ class PularSenhaView(View):
         senha_atual.chamada_em = None
         senha_atual.save()
 
+        Atendimento.objects.filter(
+            senha=senha_atual,
+            ativo=True
+        ).update(
+            finalizado_em=timezone.now(),
+            ativo=False
+        )
+
         return redirect('adminSeletto')
 
 
+@method_decorator(atendente_required, name='dispatch')
 class FinalizarSenhaView(View):
     def post(self, request):
         senha_atual = Senha.objects.filter(
-            status='EM_ATENDENDO'
-        ).first()
+            status='EM_ATENDENDO',
+            atendente=request.user.username
+        ).order_by('chamada_em').first()
 
         if not senha_atual:
+            messages.warning(
+                request,
+                'Nenhum atendimento ativo encontrado para o seu usuário.'
+            )
             return redirect('adminSeletto')
 
         # finaliza atendimento
         senha_atual.status = 'FINALIZADO'
         senha_atual.finalizado_em = timezone.now()
         senha_atual.save()
+
+        Atendimento.objects.filter(
+            senha=senha_atual,
+            ativo=True
+        ).update(
+            finalizado_em=timezone.now(),
+            ativo=False
+        )
 
         return redirect('adminSeletto')
 
@@ -126,6 +187,7 @@ class DisplayView(TemplateView):
         return context
 
 
+@method_decorator(atendente_required, name='dispatch')
 class AdminSelettoView(TemplateView):
     template_name = 'adminSeletto/dashboard.html'
 
@@ -242,23 +304,44 @@ class DadosClienteView(FormView):
         hoje = timezone.now().date()
         prefixo = categoria.prefixo
 
-        # Contar senhas do dia
-        senhas_hoje = Senha.objects.filter(
-            categoria=categoria,
-            criada_em__date=hoje
-        ).count()
+        senha = None
+        for attempt in range(3):
+            with transaction.atomic():
+                categoria = Categoria.objects.select_for_update().get(pk=categoria.pk)
 
-        numero = senhas_hoje + 1
-        codigo = f"{prefixo}{numero:03d}"
+                # Contar senhas do dia
+                senhas_hoje = Senha.objects.filter(
+                    categoria=categoria,
+                    criada_em__date=hoje
+                ).count()
 
-        # Criar senha
-        senha = Senha.objects.create(
-            codigo=codigo,
-            cliente_nome=form.cleaned_data['nome'],
-            cliente_telefone=form.cleaned_data['whatsapp'],
-            fila=categoria.fila,
-            categoria=categoria,
-        )
+                numero = senhas_hoje + 1
+                codigo = f"{prefixo}{numero:03d}"
+
+                try:
+                    senha = Senha.objects.create(
+                        codigo=codigo,
+                        cliente_nome=form.cleaned_data['nome'],
+                        cliente_email=form.cleaned_data['email'],
+                        cliente_telefone=form.cleaned_data['whatsapp'],
+                        fila=categoria.fila,
+                        categoria=categoria,
+                    )
+                    break
+                except IntegrityError:
+                    if attempt == 2:
+                        messages.error(
+                            self.request,
+                            'Não foi possível gerar a senha no momento. Tente novamente.'
+                        )
+                        return self.form_invalid(form)
+
+        if not senha:
+            messages.error(
+                self.request,
+                'Não foi possível gerar a senha. Tente novamente.'
+            )
+            return self.form_invalid(form)
 
         # Salvar sessão
         self.request.session['senha_gerada'] = {
@@ -312,38 +395,45 @@ class AcompanharFilaView(TemplateView):
             try:
                 senha = Senha.objects.select_related('categoria').get(token=token)
             except Senha.DoesNotExist:
+                context['error'] = 'Senha não encontrada. Verifique o QR code ou tente gerar uma nova senha.'
                 return context
         else:
             # Fallback para sessão (compatibilidade)
             senha_session = self.request.session.get('senha_gerada')
             if not senha_session:
+                context['error'] = 'Nenhuma senha encontrada na sessão. Gere uma nova senha no totem.'
                 return context
             
-            try:
-                senha = Senha.objects.select_related('categoria').filter(
-                    codigo=senha_session['codigo']
-                ).order_by('-id').first()
-                
-                if not senha:
-                    return context
-            except Senha.DoesNotExist:
+            senha = Senha.objects.select_related('categoria').filter(
+                codigo=senha_session['codigo']
+            ).order_by('-id').first()
+            
+            if not senha:
+                context['error'] = 'Senha não encontrada. Gere uma nova senha no totem.'
                 return context
 
-        # Buscar todas as senhas aguardando da mesma categoria
-        fila = Senha.objects.filter(
-            categoria=senha.categoria,
-            status='AGUARDANDO'
-        ).order_by('criada_em')
+        if senha.status == 'AGUARDANDO':
+            fila = Senha.objects.filter(
+                status='AGUARDANDO'
+            ).select_related('categoria').order_by(
+                '-categoria__peso',
+                'criada_em'
+            )
 
-        # Calcular posição
-        posicao = 1
-        for index, item in enumerate(fila, start=1):
-            if item.id == senha.id:
-                posicao = index
-                break
+            posicao = 0
+            for index, item in enumerate(fila, start=1):
+                if item.id == senha.id:
+                    posicao = index
+                    break
 
-        # Tempo estimado
-        tempo_estimado = posicao * 5
+            tempo_estimado = posicao * (senha.categoria.tempo_estimado_min or 5)
+        else:
+            posicao = 0
+            tempo_estimado = 0
+            if senha.status == 'EM_ATENDENDO':
+                context['info'] = 'Sua senha já está em atendimento.'
+            else:
+                context['info'] = 'Seu atendimento já foi finalizado ou não está mais na fila.'
 
         context.update({
             'senha': senha.codigo,
@@ -354,8 +444,6 @@ class AcompanharFilaView(TemplateView):
         })
 
         return context
-    
-from django.shortcuts import render
 
 
 def display_partial(request):
@@ -430,6 +518,7 @@ def gerar_qr(request):
     
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
+@atendente_required
 def admin_stats_partial(request):
 
     aguardando = Senha.objects.filter(
@@ -456,6 +545,7 @@ def admin_stats_partial(request):
         context
     )
 
+@atendente_required
 def admin_atendimento_partial(request):
 
     senha_atual = Senha.objects.select_related(
@@ -474,6 +564,7 @@ def admin_atendimento_partial(request):
         context
     )
 
+@atendente_required
 def admin_fila_partial(request):
 
     fila = Senha.objects.select_related(
@@ -541,19 +632,28 @@ def fila_status_partial(request):
                 context
             )
 
-    # Buscar todas as senhas aguardando da mesma categoria
-    fila = Senha.objects.filter(
-        categoria=senha.categoria,
-        status='AGUARDANDO'
-    ).order_by('criada_em')
+    if senha.status == 'AGUARDANDO':
+        fila = Senha.objects.filter(
+            status='AGUARDANDO'
+        ).select_related('categoria').order_by(
+            '-categoria__peso',
+            'criada_em'
+        )
 
-    posicao = 1
-    for index, item in enumerate(fila, start=1):
-        if item.id == senha.id:
-            posicao = index
-            break
+        posicao = 0
+        for index, item in enumerate(fila, start=1):
+            if item.id == senha.id:
+                posicao = index
+                break
 
-    tempo_estimado = posicao * 5
+        tempo_estimado = posicao * (senha.categoria.tempo_estimado_min or 5)
+    else:
+        posicao = 0
+        tempo_estimado = 0
+        if senha.status == 'EM_ATENDENDO':
+            context['info'] = 'Sua senha já está em atendimento.'
+        else:
+            context['info'] = 'Seu atendimento já foi finalizado ou não está mais na fila.'
 
     context.update({
         'posicao': posicao,

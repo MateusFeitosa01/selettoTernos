@@ -1,3 +1,13 @@
+{% if error %}
+<div class="alert alert-warning text-black rounded-5 py-4 px-3 mb-3">
+    {{ error }}
+</div>
+{% else %}
+    {% if info %}
+    <div class="alert alert-info text-black rounded-5 py-4 px-3 mb-3">
+        {{ info }}
+    </div>
+    {% endif %}
 <div class="row g-3 mb-3">
 
     <!-- Posição -->
@@ -55,3 +65,4 @@
     </div>
 
 </div>
+{% endif %}

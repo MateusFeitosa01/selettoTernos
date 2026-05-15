@@ -52,7 +52,7 @@ Preencha seus dados
                             type="email"
                             name="email"
                             value="{{ form.email.value|default:'' }}"
-                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
+                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.email.errors %}is-invalid{% endif %} input-campo"
                             style="background-color: rgb(38, 38, 38);"
                             placeholder="seu@email.com"
                         >
@@ -75,7 +75,7 @@ Preencha seus dados
                             id="telefone"
                             name="whatsapp"
                             value="{{ form.whatsapp.value|default:'' }}"
-                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.nome.errors %}is-invalid{% endif %} input-campo"
+                            class="form-control form-control-lg text-white border-0 rounded-4 px-4 py-3 {% if form.whatsapp.errors %}is-invalid{% endif %} input-campo"
                             style="background-color: rgb(38, 38, 38);"
                             placeholder="(11) 99999-9999"
                         >

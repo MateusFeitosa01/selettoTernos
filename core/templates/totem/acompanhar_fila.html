@@ -59,9 +59,15 @@ Acompanhar fila
         </div>
 
         <!-- Grid -->
+        {% if error %}
+            <div class="alert alert-warning text-black rounded-5 py-4 px-3 mb-3">
+                {{ error }}
+            </div>
+        {% endif %}
+
         <div
             id="display-content"
-            hx-get="{% url 'fila_status_partial' %}?token={{ token }}"
+            hx-get="{% url 'fila_status_partial' %}{% if token %}?token={{ token }}{% endif %}"
             hx-trigger="load, every 3s"
             hx-swap="innerHTML">
 
