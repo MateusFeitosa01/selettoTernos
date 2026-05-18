@@ -5,7 +5,7 @@ class User(AbstractUser):
 
     TIPOS = (
         ('admin', 'Admin'),
-        ('Atendente', 'Atendente'),
+        ('atendente', 'Atendente'),
     )
 
     tipo_usuario = models.CharField(

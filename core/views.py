@@ -21,15 +21,30 @@ from functools import wraps
 def atendente_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
+
+        
+
         if not request.user.is_authenticated:
             return redirect('login')
-        if request.user.tipo_usuario not in ('admin', 'Atendente'):
+
+
+        print(request.user)
+
+
+        tipo_usuario = ''
+
+        if request.user.tipo_usuario:
+            tipo_usuario = request.user.tipo_usuario.lower()
+
+        if tipo_usuario not in ('admin', 'atendente'):
             messages.error(
                 request,
                 'Acesso restrito. Faça login com uma conta de atendente ou administrador.'
             )
             return redirect('home')
+
         return view_func(request, *args, **kwargs)
+
     return _wrapped_view
 
 
