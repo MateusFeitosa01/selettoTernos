@@ -15,40 +15,12 @@ from django.shortcuts import redirect, render
 import qrcode
 from io import BytesIO
 from django.http import HttpResponse
-from functools import wraps
+from accounts.decorators import role_required
 
 
-def atendente_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-
-        
-
-        if not request.user.is_authenticated:
-            return redirect('login')
 
 
-        print(request.user)
-
-
-        tipo_usuario = ''
-
-        if request.user.tipo_usuario:
-            tipo_usuario = request.user.tipo_usuario.lower()
-
-        if tipo_usuario not in ('admin', 'atendente'):
-            messages.error(
-                request,
-                'Acesso restrito. Faça login com uma conta de atendente ou administrador.'
-            )
-            return redirect('home')
-
-        return view_func(request, *args, **kwargs)
-
-    return _wrapped_view
-
-
-@method_decorator(atendente_required, name='dispatch')
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class ChamarProximaView(View):
     def post(self, request):
 
@@ -95,7 +67,7 @@ class ChamarProximaView(View):
 
         return redirect('adminSeletto')
 
-@method_decorator(atendente_required, name='dispatch')
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class PularSenhaView(View):
     def post(self, request):
         senha_atual = Senha.objects.filter(
@@ -127,7 +99,7 @@ class PularSenhaView(View):
         return redirect('adminSeletto')
 
 
-@method_decorator(atendente_required, name='dispatch')
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class FinalizarSenhaView(View):
     def post(self, request):
         senha_atual = Senha.objects.filter(
@@ -160,7 +132,7 @@ class FinalizarSenhaView(View):
 class HomeView(TemplateView):
     template_name = 'home/index.html'
 
-
+@method_decorator(role_required('tv'), name='dispatch')
 class DisplayView(TemplateView):
     template_name = 'display/painel_fila.html'
 
@@ -202,7 +174,7 @@ class DisplayView(TemplateView):
         return context
 
 
-@method_decorator(atendente_required, name='dispatch')
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class AdminSelettoView(TemplateView):
     template_name = 'adminSeletto/dashboard.html'
 
@@ -247,61 +219,64 @@ class AdminSelettoView(TemplateView):
         })
 
         return context
-
+@method_decorator(role_required('totem'), name='dispatch')
 class TotemView(TemplateView):
     template_name = 'totem/escolha_atendimento.html'
 
-
+@method_decorator(role_required('totem'), name='dispatch')
 class DadosClienteView(FormView):
+
     template_name = 'totem/dados_cliente.html'
     form_class = ClienteForm
 
+    TIPO_MAPEAMENTO = {
+        'prova-noivo': 'Prova Noivo',
+        'prioritario': 'Prioritário',
+        'locar-terno': 'Locar Terno',
+        'prova': 'Prova',
+        'retrabalho': 'Retrabalho',
+        'venda': 'Venda',
+        'troca': 'Troca',
+        'retirada': 'Retirada',
+        'gerente': 'Falar com gerente',
+        'devolucao': 'Devolução',
+    }
+
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
+
         tipo = self.kwargs.get('tipo', '')
-        # Converter tipo da URL para nome legível
-        tipo_mapeamento = {
-            'prova-noivo': 'Prova Noivo',
-            'prioritario': 'Prioritário',
-            'locar-terno': 'Locar Terno',
-            'prova': 'Prova',
-            'retrabalho': 'Retrabalho',
-            'venda': 'Venda',
-            'troca': 'Troca',
-            'retirada': 'Retirada',
-            'gerente': 'Falar com gerente',
-            'devolucao': 'Devolução',
-        }
-        context['tipo'] = tipo_mapeamento.get(tipo, tipo.replace('-', ' ').title())
+
+        context['tipo'] = self.TIPO_MAPEAMENTO.get(
+            tipo,
+            tipo.replace('-', ' ').title()
+        )
+
         return context
 
+    def form_invalid(self, form):
+
+        print('FORM INVALID')
+        print(form.errors)
+
+        return super().form_invalid(form)
+
     def form_valid(self, form):
+
         tipo = self.kwargs.get('tipo', '')
 
-        # Mapear tipo para categoria
-        tipo_para_categoria = {
-            'prova-noivo': 'Prova Noivo',
-            'prioritario': 'Prioritário',
-            'locar-terno': 'Locar Terno',
-            'prova': 'Prova',
-            'retrabalho': 'Retrabalho',
-            'venda': 'Venda',
-            'troca': 'Troca',
-            'retirada': 'Retirada',
-            'gerente': 'Falar com gerente',
-            'devolucao': 'Devolução',
-        }
-
-        categoria_nome = tipo_para_categoria.get(tipo)
+        categoria_nome = self.TIPO_MAPEAMENTO.get(tipo)
 
         if not categoria_nome:
+
             messages.error(
                 self.request,
                 'Tipo de atendimento inválido.'
             )
+
             return self.form_invalid(form)
 
-        # Buscar categoria
         categoria = Categoria.objects.filter(
             nome__iexact=categoria_nome,
             fila__ativa=True,
@@ -309,31 +284,47 @@ class DadosClienteView(FormView):
         ).first()
 
         if not categoria:
+
             messages.error(
                 self.request,
                 'Categoria de atendimento não encontrada.'
             )
+
             return self.form_invalid(form)
 
-        # Gerar código único da senha
-        hoje = timezone.now().date()
         prefixo = categoria.prefixo
 
         senha = None
+
         for attempt in range(3):
-            with transaction.atomic():
-                categoria = Categoria.objects.select_for_update().get(pk=categoria.pk)
 
-                # Contar senhas do dia
-                senhas_hoje = Senha.objects.filter(
-                    categoria=categoria,
-                    criada_em__date=hoje
-                ).count()
+            try:
 
-                numero = senhas_hoje + 1
-                codigo = f"{prefixo}{numero:03d}"
+                with transaction.atomic():
 
-                try:
+                    categoria = Categoria.objects.select_for_update().get(
+                        pk=categoria.pk
+                    )
+
+                    ultima_senha = Senha.objects.filter(
+                        categoria=categoria,
+                        codigo__startswith=prefixo
+                    ).order_by('-id').first()
+
+                    if ultima_senha:
+
+                        ultimo_numero = int(
+                            ultima_senha.codigo.replace(prefixo, '')
+                        )
+
+                        numero = ultimo_numero + 1
+
+                    else:
+
+                        numero = 1
+
+                    codigo = f'{prefixo}{numero:03d}'
+
                     senha = Senha.objects.create(
                         codigo=codigo,
                         cliente_nome=form.cleaned_data['nome'],
@@ -342,23 +333,31 @@ class DadosClienteView(FormView):
                         fila=categoria.fila,
                         categoria=categoria,
                     )
+
                     break
-                except IntegrityError:
-                    if attempt == 2:
-                        messages.error(
-                            self.request,
-                            'Não foi possível gerar a senha no momento. Tente novamente.'
-                        )
-                        return self.form_invalid(form)
+
+            except IntegrityError:
+
+                print(f'Tentativa {attempt + 1} falhou')
+
+                if attempt == 2:
+
+                    messages.error(
+                        self.request,
+                        'Não foi possível gerar a senha no momento.'
+                    )
+
+                    return self.form_invalid(form)
 
         if not senha:
+
             messages.error(
                 self.request,
-                'Não foi possível gerar a senha. Tente novamente.'
+                'Não foi possível gerar a senha.'
             )
+
             return self.form_invalid(form)
 
-        # Salvar sessão
         self.request.session['senha_gerada'] = {
             'codigo': senha.codigo,
             'tipo': categoria.nome,
@@ -370,10 +369,7 @@ class DadosClienteView(FormView):
             f'Senha {senha.codigo} gerada com sucesso!'
         )
 
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('senha_gerada')
+        return redirect('senha_gerada')
 
 
 class SenhaGeradaView(TemplateView):
@@ -533,7 +529,7 @@ def gerar_qr(request):
     
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
-@atendente_required
+@role_required('admin', 'funcionario')
 def admin_stats_partial(request):
 
     aguardando = Senha.objects.filter(
@@ -560,7 +556,7 @@ def admin_stats_partial(request):
         context
     )
 
-@atendente_required
+@role_required('admin', 'funcionario')
 def admin_atendimento_partial(request):
 
     senha_atual = Senha.objects.select_related(
@@ -579,7 +575,7 @@ def admin_atendimento_partial(request):
         context
     )
 
-@atendente_required
+@role_required('admin', 'funcionario')
 def admin_fila_partial(request):
 
     fila = Senha.objects.select_related(
