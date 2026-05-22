@@ -16,9 +16,10 @@ import qrcode
 from io import BytesIO
 from django.http import HttpResponse
 from accounts.decorators import role_required
+import logging 
 
 
-
+logger = logging.getLogger(__name__)
 
 @method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class ChamarProximaView(View):
@@ -257,8 +258,8 @@ class DadosClienteView(FormView):
 
     def form_invalid(self, form):
 
-        print('FORM INVALID')
-        print(form.errors)
+        logger.error('Formulário inválido: %s', form.errors)  # Log detalhado do erro
+        
 
         return super().form_invalid(form)
 
@@ -338,7 +339,7 @@ class DadosClienteView(FormView):
 
             except IntegrityError:
 
-                print(f'Tentativa {attempt + 1} falhou')
+                logger.warning('Conflito ao gerar senha para categoria %s, tentativa %d', categoria.nome, attempt + 1)
 
                 if attempt == 2:
 

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = config(
 
 INSTALLED_APPS = [
     'daphne',
+    'axes',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,6 +57,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+
+    'axes.middleware.AxesMiddleware',
 
     # WhiteNoise
     'whitenoise.middleware.WhiteNoiseMiddleware',

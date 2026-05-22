@@ -69,3 +69,9 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+
+db.sqlite3
+node_modules/
+__pycache__/
+staticfiles/
+media/
