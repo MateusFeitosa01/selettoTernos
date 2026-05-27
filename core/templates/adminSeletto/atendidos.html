@@ -1,0 +1,384 @@
+{% extends 'base/base_admin.html' %}
+
+{% block title %}
+Atendidos
+{% endblock %}
+
+{% block content %}
+
+<div class="pt-4 text-white" style="padding: 0 8em;">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Atendimentos Finalizados</h1>
+
+            <p class="text-secondary mb-0">
+                Histórico de senhas atendidas
+            </p>
+        </div>
+
+        <a href="{% url 'adminSeletto' %}"
+           class="btn btn-light rounded-4 px-4">
+            Voltar
+        </a>
+
+    </div>
+
+    <!-- FILTROS -->
+<div class="row g-3 mb-4">
+
+    <!-- PESQUISA -->
+    <div class="col-md-6">
+        
+        <input type="text"
+            id="pesquisaAtendidos"
+            placeholder="Pesquisar por nome, telefone, email ou senha..."
+            class="form-control rounded-4 py-3 px-4 border-0 text-white"
+            style="
+                    background-color: rgb(23,23,23);
+                    font-size: 1rem;
+            ">
+
+    </div>
+
+    <!-- FILTRO TIPO -->
+    <div class="col-md-3">
+
+        <select id="filtroCategoria"
+                class="form-select rounded-4 py-3 px-4 border-0 text-white"
+                style="
+                    background-color: rgb(23,23,23);
+                    font-size: 1rem;
+                ">
+
+            <option value="">
+                Tipo de senha
+            </option>
+
+            {% regroup atendidos by categoria.nome as categorias %}
+
+            {% for categoria in categorias %}
+
+                <option value="{{ categoria.grouper }}">
+                    {{ categoria.grouper }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+    <!-- FILTRO DATA -->
+        <div class="col-md-3">
+
+            <div class="position-relative">
+
+                <i class="bi bi-calendar-event position-absolute"
+                style="
+                        left: 18px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        z-index: 10;
+                        color: rgb(180,180,180);
+                "></i>
+
+                <input type="date"
+                    id="filtroData"
+                    class="form-control rounded-4 py-3 ps-5 pe-4 border-0 text-white"
+                    style="
+                            background-color: rgb(23,23,23);
+                            font-size: 1rem;
+                            color-scheme: dark;
+                    ">
+
+            </div>
+
+        </div>
+
+</div>
+    {% if atendidos %}
+
+        <div class="d-flex flex-column gap-3">
+
+            {% for senha in atendidos %}
+
+            <div class="card-atendimento"
+                    data-categoria="{{ senha.categoria.nome }}"
+                    data-data="{{ senha.finalizado_em|date:'Y-m-d' }}">
+
+                <!-- CARD -->
+                    <div class="bg-white text-black rounded-4 p-4 position-relative"
+                        style="
+                            cursor: pointer;
+                            transition: 0.2s ease;
+                        "
+                        onclick="toggleDetalhes('detalhes-{{ senha.id }}', this)"
+                        onmouseover="
+                            this.style.transform='translateY(-2px)';
+                        "
+                        onmouseout="
+                            this.style.transform='translateY(0)';
+                        ">
+
+                        <!-- BOTÃO EXCLUIR -->
+                        <form method="POST"
+                            action="{% url 'excluir_atendido' senha.id %}"
+                            style="
+                                    position: absolute;
+                                    top: 18px;
+                                    right: 18px;
+                                    z-index: 20;
+                            "
+                            onclick="event.stopPropagation();"
+                            onsubmit="return confirm('Deseja excluir este atendimento?');">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                class="btn btn-sm rounded-3"
+                                style="
+                                    background-color: #d9d9d9;
+                                    border: none;
+                                    color: #222;
+                                    transition: 0.2s ease;
+                                "
+                                onmouseover="
+                                    this.style.backgroundColor='#dc3545';
+                                    this.style.color='white';
+                                "
+                                onmouseout="
+                                    this.style.backgroundColor='#d9d9d9';
+                                    this.style.color='#222';
+                                ">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </form>
+
+                        <div class="row align-items-center">
+
+                            <div class="col-md-2">
+
+                                <h2 class="mb-0">
+                                    {{ senha.codigo }}
+                                </h2>
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <p class="mb-1 text-secondary">
+                                    Categoria
+                                </p>
+
+                                <p class="mb-0">
+                                    {{ senha.categoria.nome }}
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <p class="mb-1 text-secondary">
+                                    Cliente
+                                </p>
+
+                                <p class="mb-0 nome-cliente">
+                                    {{ senha.cliente_nome }}
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <p class="mb-1 text-secondary">
+                                    Atendente
+                                </p>
+
+                                <p class="mb-0">
+                                    {{ senha.atendente|default:"-" }}
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <p class="mb-1 text-secondary">
+                                    Finalizado em
+                                </p>
+
+                                <p class="mb-0">
+                                    {{ senha.finalizado_em|date:"d/m/Y H:i" }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                <!-- DETALHES -->
+                <div id="detalhes-{{ senha.id }}"
+                     class="mt-2 rounded-4 p-4"
+                     style="
+                        background-color: rgb(80, 80, 80);
+                        display: none;
+                     ">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+
+                            <p class="text-white mb-1">
+                                Nome:
+                            </p>
+
+                            <p class="mb-0">
+                                {{ senha.cliente_nome }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <p class="text-white mb-1">
+                                Email:
+                            </p>
+
+                            <p class="mb-0">
+                                {{ senha.cliente_email|default:"-" }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <p class="text-white mb-1">
+                                Telefone:
+                            </p>
+
+                            <p class="mb-0">
+                                {{ senha.cliente_telefone }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- DADOS OCULTOS PARA PESQUISA -->
+                <div class="dados-pesquisa d-none">
+                    {{ senha.codigo }}
+                    {{ senha.cliente_nome }}
+                    {{ senha.cliente_email }}
+                    {{ senha.cliente_telefone }}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="bg-dark rounded-4 p-5 text-center">
+
+            <h3>
+                Nenhum atendimento finalizado
+            </h3>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+<script>
+
+function toggleDetalhes(id) {
+
+    const detalhes = document.getElementById(id);
+
+    if (detalhes.style.display === 'none') {
+
+        detalhes.style.display = 'block';
+
+    } else {
+
+        detalhes.style.display = 'none';
+
+    }
+
+}
+
+const pesquisa = document.getElementById('pesquisaAtendidos');
+
+const filtroCategoria = document.getElementById('filtroCategoria');
+
+const filtroData = document.getElementById('filtroData');
+
+function aplicarFiltros() {
+
+    const termo = pesquisa.value.toLowerCase();
+
+    const categoria = filtroCategoria.value.toLowerCase();
+
+    const data = filtroData.value;
+
+    const cards = document.querySelectorAll('.card-atendimento');
+
+    cards.forEach(card => {
+
+        const texto = card
+            .querySelector('.dados-pesquisa')
+            .innerText
+            .toLowerCase();
+
+        const categoriaCard = card.dataset.categoria.toLowerCase();
+
+        const dataCard = card.dataset.data;
+
+        const batePesquisa = texto.includes(termo);
+
+        const bateCategoria = !categoria || categoriaCard === categoria;
+
+        const bateData = !data || dataCard === data;
+
+        if (batePesquisa && bateCategoria && bateData) {
+
+            card.style.display = 'block';
+
+        } else {
+
+            card.style.display = 'none';
+
+        }
+
+    });
+
+}
+
+pesquisa.addEventListener('keyup', aplicarFiltros);
+
+filtroCategoria.addEventListener('change', aplicarFiltros);
+
+filtroData.addEventListener('change', aplicarFiltros);
+
+</script>
+
+<style>
+
+#pesquisaAtendidos::placeholder {
+    color: rgb(148, 148, 148);
+    opacity: 1;
+}
+
+</style>
+{% endblock %}

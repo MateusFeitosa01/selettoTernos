@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SEGURANÇA
 # =========================
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
+SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
@@ -111,7 +111,7 @@ ASGI_APPLICATION = 'selettoTernos.asgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL')
+        default=config('DATABASE_URL', default='sqlite:///db.sqlite3')
     )
 }
 
@@ -186,12 +186,18 @@ LOGOUT_REDIRECT_URL = '/'
 # CHANNELS / REDIS
 # =========================
 
+#CHANNEL_LAYERS = {
+#    'default': {
+#        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#        'CONFIG': {
+#            'hosts': [config('REDIS_URL', default='redis://127.0.0.1:6379/0')],
+#        },
+#    },
+#}
+
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [config('REDIS_URL')],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 

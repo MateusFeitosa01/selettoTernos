@@ -1,68 +1,114 @@
 {% if error %}
+
 <div class="alert alert-warning text-black rounded-5 py-4 px-3 mb-3">
     {{ error }}
 </div>
+
 {% else %}
+
     {% if info %}
-    <div class="alert alert-info text-black rounded-5 py-4 px-3 mb-3">
-        {{ info }}
+
+    <!-- CARD DE INFORMAÇÃO -->
+    <div class="row g-3 mb-3">
+
+        <div class="col-12 d-flex">
+
+            <div class="card border-0 rounded-5 w-100 h-100"  style="background-color: #c9f7ff;">
+
+                <div class="card-body text-center d-flex flex-column justify-content-center py-5 px-4">
+
+                    <p class="fw-semibold mb-3" style="font-size: 1.1rem;">
+                        <i class="bi bi-megaphone"></i>
+                        Status do atendimento
+                    </p>
+
+                    <h1 class="fw-bold mb-3"
+                        style="
+                            font-size: clamp(1rem, 4vw, 2rem);
+                            line-height: 1;
+                            word-break: break-word;
+                        ">
+
+                        {{ info }}
+
+                    </h1>
+
+                    <p class="text-secondary mb-0"
+                       style="font-size: 1rem;">
+
+                        Dirija-se ao local de atendimento
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+    {% else %}
+
+    <!-- GRID NORMAL -->
+    <div class="row g-3 mb-3">
+
+        <!-- Posição -->
+        <div class="col-6 d-flex">
+
+            <div class="card border-0 rounded-5 w-100 h-100">
+
+                <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                    <p class="fw-semibold mb-2" style="font-size: 1rem;">
+                        <i class="bi bi-people"></i>
+                        Posição na fila
+                    </p>
+
+                    <h1 class="fw-bold mb-2" style="font-size: 3rem;">
+                        {{ posicao }}°
+                    </h1>
+
+                    {% if posicao == 1 %}
+                    <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                        Você é o próximo
+                    </p>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Tempo -->
+        <div class="col-6 d-flex">
+
+            <div class="card border-0 rounded-5 w-100 h-100">
+
+                <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+
+                    <p class="fw-semibold mb-2" style="font-size: 1rem;">
+                        <i class="bi bi-clock"></i>
+                        Tempo estimado
+                    </p>
+
+                    <h1 class="fw-bold mb-2" style="font-size: 3rem;">
+                        {{ tempo_estimado }} min
+                    </h1>
+
+                    <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                        Aproximadamente
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     {% endif %}
-<div class="row g-3 mb-3">
 
-    <!-- Posição -->
-    <div class="col-6 d-flex">
-
-        <div class="card border-0 rounded-5 w-100 h-100">
-
-            <div class="card-body text-center d-flex flex-column justify-content-center py-4">
-
-                <p class="fw-semibold mb-2" style="font-size: 1rem;">
-                    <i class="bi bi-people"></i>
-                    Posição na fila
-                </p>
-
-                <h1 class="fw-bold mb-2" style="font-size: 3rem;">
-                    {{ posicao }}°
-                </h1>
-
-                {% if posicao == 1 %}
-                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
-                    Você é o próximo
-                </p>
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Tempo -->
-    <div class="col-6 d-flex">
-
-        <div class="card border-0 rounded-5 w-100 h-100">
-
-            <div class="card-body text-center d-flex flex-column justify-content-center py-4">
-
-                <p class="fw-semibold mb-2" style="font-size: 1rem;">
-                    <i class="bi bi-clock"></i>
-                    Tempo estimado
-                </p>
-
-                <h1 class="fw-bold mb-2" style="font-size: 3rem;">
-                    {{ tempo_estimado }} min
-                </h1>
-
-                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
-                    Aproximadamente
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 {% endif %}

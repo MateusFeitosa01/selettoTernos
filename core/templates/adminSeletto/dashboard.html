@@ -51,7 +51,7 @@ Painel Seletto
         <div class="row g-4 justify-content-center">
 
             <!-- CHAMAR PRÓXIMA -->
-            <div class="col-4">
+            <div class="col-12">
                 <button type="submit"
                         form="chamarForm"
                         class="py-3 rounded-4 h-100 text-black border-0 w-100"
@@ -62,42 +62,7 @@ Painel Seletto
                     </div>
                 </button>
             </div>
-
-            <!-- PULAR SENHA -->
-            <div class="col-4">
-                <form method="POST"
-                      action="{% url 'pular_senha' %}"
-                      id="pularForm">
-                    {% csrf_token %}
-
-                    <button type="submit"
-                            class="py-3 rounded-4 h-100 border-0 w-100 text-white"
-                            style="background-color: rgb(38, 38, 38);">
-                        <div class="d-flex justify-content-center align-items-center gap-3">
-                            <i class="bi bi-arrow-bar-right fs-5"></i>
-                            <p class="fs-5 mb-0">Pular senha</p>
-                        </div>
-                    </button>
-                </form>
-            </div>
-
-            <!-- FINALIZAR -->
-            <div class="col-4">
-                <form method="POST"
-                      action="{% url 'finalizar_senha' %}"
-                      id="finalizarForm">
-                    {% csrf_token %}
-
-                    <button type="submit"
-                            class="py-3 rounded-4 h-100 border-0 w-100 text-white"
-                            style="background-color: rgb(38, 38, 38);">
-                        <div class="d-flex justify-content-center align-items-center gap-3">
-                            <i class="bi bi-check2-circle fs-5"></i>
-                            <p class="fs-5 mb-0">Finalizar</p>
-                        </div>
-                    </button>
-                </form>
-            </div>
+    
 
         </div>
     </div>
@@ -126,15 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (pularForm) {
         pularForm.addEventListener('submit', function (e) {
             if (!confirm('Tem certeza que deseja pular esta senha?')) {
-                e.preventDefault();
-            }
-        });
-    }
-
-    const finalizarForm = document.getElementById('finalizarForm');
-    if (finalizarForm) {
-        finalizarForm.addEventListener('submit', function (e) {
-            if (!confirm('Confirmar finalização deste atendimento?')) {
                 e.preventDefault();
             }
         });

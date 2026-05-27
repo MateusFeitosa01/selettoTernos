@@ -6,7 +6,15 @@ Seletto - Sistema de Atendimento
 {% endblock %}
 
 {% block content %}
-<div  class="bg-black min-vh-100 d-flex flex-column justify-content-center align-items-center text-white">
+<div  class="bg-black min-vh-100 d-flex flex-column justify-content-center align-items-center text-white position-relative">
+    
+    {% if user.is_authenticated %}
+    <div class="position-absolute top-0 end-0 p-4">
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-box-arrow-right"></i> Sair
+        </a>
+    </div>
+    {% endif %}
     
     <div class="text-center mb-16">
           <img src="{% static 'img/logo.png' %}" alt="Seletto" width="200" class=" mx-auto mb-8" />

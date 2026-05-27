@@ -1,54 +1,167 @@
-{% if senha_atual %}
-    <div class="bg-white text-black py-4 px-4 rounded-4 mb-4">
-        <h1 class="fs-3">Atendimento atual</h1>
+{% if senhas_atendendo %}
+    {% for senha_atual in senhas_atendendo %}
+
+    <div class="bg-white text-black py-4 px-4 rounded-4 mb-4 position-relative">
+
+        <!-- BOTÕES -->
+        <div class="position-absolute top-0 end-0 p-3 d-flex gap-2">
+
+            <!-- VOLTAR PARA FILA -->
+            <form method="POST"
+                action="{% url 'voltar_fila' %}"
+                style="display: inline;"
+                onsubmit="return confirm('Deseja devolver esta senha para a fila?');">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                    name="senha_id"
+                    value="{{ senha_atual.id }}">
+
+                <button type="submit"
+                        class="btn btn-sm rounded-3"
+                        style="
+                            background-color: #d9d9d9;
+                            border: none;
+                            color: #222;
+                            transition: 0.2s ease;
+                        "
+                        onmouseover="
+                            this.style.backgroundColor='#ffc107';
+                            this.style.color='#000';
+                        "
+                        onmouseout="
+                            this.style.backgroundColor='#d9d9d9';
+                            this.style.color='#222';
+                        ">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Voltar para fila
+                </button>
+            </form>
+
+            <!-- FINALIZAR -->
+            <form method="POST"
+                action="{% url 'finalizar_senha' %}"
+                style="display: inline;"
+                onsubmit="return confirm('Confirmar finalização deste atendimento?');">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                    name="senha_id"
+                    value="{{ senha_atual.id }}">
+
+                <button type="submit"
+                        class="btn btn-sm rounded-3"
+                        style="
+                            background-color: #d9d9d9;
+                            border: none;
+                            color: #222;
+                            transition: 0.2s ease;
+                        "
+                        onmouseover="
+                            this.style.backgroundColor='#dc3545';
+                            this.style.color='white';
+                        "
+                        onmouseout="
+                            this.style.backgroundColor='#d9d9d9';
+                            this.style.color='#222';
+                        ">
+                    <i class="bi bi-x-circle"></i>
+                    Finalizar
+                </button>
+            </form>
+
+        </div>
+
+        <!-- TÍTULO -->
+        <h1 class="fs-3">
+            Atendimento atual
+        </h1>
 
         <div class="row g-4">
 
+            <!-- DADOS DA SENHA -->
             <div class="col-6">
+
                 <div class="d-flex flex-column gap-2">
-                    <div class="d-flex gap-2">
-                        <h1 class="p-0" style="font-size: 5em;">
+
+                    <div class="d-flex gap-2 align-items-start">
+
+                        <h1 class="p-0 mb-0"
+                            style="font-size: 5em; line-height: 1;">
                             {{ senha_atual.codigo }}
                         </h1>
 
                         <div class="mt-4">
-                            <p>{{ senha_atual.categoria.nome }}</p>
+                            <p class="mb-0">
+                                {{ senha_atual.categoria.nome }}
+                            </p>
                         </div>
+
                     </div>
 
                     <div>
-                        <p>Atendente: {{ senha_atual.atendente|default:"-" }}</p>
+                        <p class="mb-0">
+                            Atendente:
+                            {{ senha_atual.atendente|default:"-" }}
+                        </p>
                     </div>
+
                 </div>
+
             </div>
 
+            <!-- DADOS CLIENTE -->
             <div class="col-6">
-                <div class="rounded-4 py-3 px-4" style="background-color: rgb(245,245,245);">
 
-                    <p><i class="bi bi-person"></i> Dados Do Cliente</p>
+                <div class="rounded-4 py-3 px-4"
+                     style="background-color: rgb(245,245,245);">
 
-                    <div class="mt-2">
+                    <p class="fw-semibold">
+                        <i class="bi bi-person"></i>
+                        Dados Do Cliente
+                    </p>
+
+                    <div class="mt-2 d-flex flex-column gap-2">
+
                         <div>
-                            <span>Nome:</span>
-                            <p>{{ senha_atual.cliente_nome }}</p>
+                            <span class="fw-semibold">Nome:</span>
+                            <p class="mb-0">
+                                {{ senha_atual.cliente_nome }}
+                            </p>
                         </div>
 
                         <div>
-                            <span>Email:</span>
-                            <p>{{ senha_atual.cliente_email|default:"-" }}</p>
+                            <span class="fw-semibold">Email:</span>
+                            <p class="mb-0">
+                                {{ senha_atual.cliente_email|default:"-" }}
+                            </p>
                         </div>
 
                         <div>
-                            <span>Telefone:</span>
-                            <p>{{ senha_atual.cliente_telefone|default:"-" }}</p>
+                            <span class="fw-semibold">Telefone:</span>
+                            <p class="mb-0">
+                                {{ senha_atual.cliente_telefone|default:"-" }}
+                            </p>
                         </div>
+
                     </div>
 
                 </div>
+
             </div>
 
         </div>
+
     </div>
-    {% else %}
-        <p class="text-secondary mb-4">Nenhum atendimento em andamento</p>
-    {% endif %}
+
+    {% endfor %}
+
+{% else %}
+
+    <p class="text-secondary mb-4">
+        Nenhum atendimento em andamento
+    </p>
+
+{% endif %}

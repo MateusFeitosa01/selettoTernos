@@ -18,6 +18,9 @@ from .views import (
     admin_atendimento_partial,
     admin_fila_partial,
     fila_status_partial,
+    VoltarFilaView,
+    AtendidosView,
+    excluir_atendido,
 )
 
 urlpatterns = [
@@ -91,6 +94,12 @@ urlpatterns = [
     ),
 
     path(
+        'voltar-fila/',
+        VoltarFilaView.as_view(),
+        name='voltar_fila'
+    ),
+
+    path(
         'gerar-qr/',
         gerar_qr,
         name='gerar_qr'
@@ -124,5 +133,17 @@ urlpatterns = [
         'fila-status-partial/',
         fila_status_partial,
         name='fila_status_partial'
+    ),
+
+    path(
+        'atendidos/',
+        AtendidosView.as_view(),
+        name='atendidos'
+    ),
+
+    path(
+        'atendidos/excluir/<int:senha_id>/',
+        excluir_atendido,
+        name='excluir_atendido'
     ),
     ]

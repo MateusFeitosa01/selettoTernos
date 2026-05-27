@@ -6,13 +6,13 @@ Display
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid bg-black min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center text-white">
+<div class="container-fluid bg-black min-vh-100 py-1 d-flex flex-column justify-content-center align-items-center text-white">
 
     <div class="text-center mb-2">
         <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class="mx-auto mb-2"/>
 
         <p class="fs-2 mb-1">
-            Atendimento
+            Em atendimento
         </p>
     </div>
 
@@ -29,38 +29,44 @@ Display
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    let ultimaSenha = null;
+    let ultimasSenhas = [];
 
     function verificarMudancaSenha() {
 
-        const senhaElement = document.querySelector('#senha-atual-codigo');
+        const senhaElements = document.querySelectorAll('#senha-atual-codigo');
 
-        // Se não existir senha atual
-        if (!senhaElement) {
+        // lista atual
+        const senhasAtuais = Array.from(senhaElements)
+            .map(el => el.innerText.trim());
+
+        // primeira execução
+        if (ultimasSenhas.length === 0) {
+            ultimasSenhas = [...senhasAtuais];
             return;
         }
 
-        const senhaAtual = senhaElement.innerText.trim();
+        // detecta apenas senhas NOVAS
+        const novasSenhas = senhasAtuais.filter(
+            senha => !ultimasSenhas.includes(senha)
+        );
 
-        // Primeira execução
-        if (ultimaSenha === null) {
-            ultimaSenha = senhaAtual;
+        // atualiza memória
+        ultimasSenhas = [...senhasAtuais];
+
+        // se não adicionou senha nova, não fala nada
+        if (novasSenhas.length === 0) {
             return;
         }
 
-        // Se mudou a senha
-        if (senhaAtual !== ultimaSenha) {
+        // pega última senha adicionada
+        const novaSenha = novasSenhas[novasSenhas.length - 1];
 
-            ultimaSenha = senhaAtual;
-
-            // toca som e depois anuncia
-            tocarSom(() => {
-                anunciarSenha(senhaAtual);
-            });
-        }
+        tocarSom(() => {
+            anunciarSenha(novaSenha);
+        });
     }
 
-    // Detecta atualização do HTMX
+    // executa após atualização HTMX
     document.body.addEventListener('htmx:afterSwap', function () {
         verificarMudancaSenha();
     });
@@ -74,7 +80,6 @@ function tocarSom(callback) {
     audio.play()
         .then(() => {
 
-            // Quando terminar o som
             audio.onended = () => {
 
                 if (callback) {
@@ -137,7 +142,7 @@ function anunciarSenha(senha) {
         return;
     }
 
-    // Cancela falas anteriores
+    // limpa falas anteriores
     synth.cancel();
 
     const mensagem = new SpeechSynthesisUtterance(
@@ -146,13 +151,10 @@ function anunciarSenha(senha) {
 
     mensagem.lang = 'pt-BR';
 
-    // velocidade
     mensagem.rate = 0.9;
 
-    // tom
     mensagem.pitch = 1;
 
-    // volume
     mensagem.volume = 1;
 
     synth.speak(mensagem);
@@ -160,7 +162,6 @@ function anunciarSenha(senha) {
 
 function formatarSenha(senha) {
 
-    // separa letras e números
     // PR001 -> P R 0 0 1
     return senha.split('').join(' ');
 }

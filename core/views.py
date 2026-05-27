@@ -30,18 +30,6 @@ class ChamarProximaView(View):
         if not atendente:
             return redirect('adminSeletto')
 
-        active_atendimento = Atendimento.objects.filter(
-            atendente=request.user,
-            ativo=True
-        ).select_related('senha').first()
-
-        if active_atendimento:
-            messages.warning(
-                request,
-                'Finalize o atendimento atual antes de chamar a próxima senha.'
-            )
-            return redirect('adminSeletto')
-
         with transaction.atomic():
             # pega próxima senha
             senha = Senha.objects.select_for_update().filter(
@@ -68,9 +56,13 @@ class ChamarProximaView(View):
 
         return redirect('adminSeletto')
 
+from datetime import timedelta
+
 @method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class PularSenhaView(View):
+
     def post(self, request):
+
         senha_atual = Senha.objects.filter(
             status='EM_ATENDENDO',
             atendente=request.user.username
@@ -79,14 +71,55 @@ class PularSenhaView(View):
         if not senha_atual:
             messages.warning(
                 request,
-                'Nenhum atendimento ativo encontrado para o seu usuário.'
+                'Nenhum atendimento ativo encontrado.'
             )
             return redirect('adminSeletto')
 
-        # volta para fila
+        # fila da mesma prioridade/categoria
+        fila = list(
+            Senha.objects.filter(
+                status='AGUARDANDO',
+                categoria__peso=senha_atual.categoria.peso
+            ).exclude(
+                id=senha_atual.id
+            ).order_by(
+                'criada_em'
+            )
+        )
+
+        # volta para aguardando
         senha_atual.status = 'AGUARDANDO'
         senha_atual.atendente = None
         senha_atual.chamada_em = None
+
+        # coloca em terceiro
+        if len(fila) >= 3:
+
+            referencia = fila[2]
+
+            senha_atual.criada_em = (
+                referencia.criada_em - timedelta(milliseconds=1)
+            )
+
+        elif len(fila) >= 2:
+
+            referencia = fila[1]
+
+            senha_atual.criada_em = (
+                referencia.criada_em + timedelta(milliseconds=1)
+            )
+
+        elif len(fila) >= 1:
+
+            referencia = fila[0]
+
+            senha_atual.criada_em = (
+                referencia.criada_em + timedelta(milliseconds=1)
+            )
+
+        else:
+            senha_atual.criada_em = timezone.now()
+
         senha_atual.save()
 
         Atendimento.objects.filter(
@@ -97,18 +130,32 @@ class PularSenhaView(View):
             ativo=False
         )
 
-        return redirect('adminSeletto')
+        messages.success(
+            request,
+            f'Senha {senha_atual.codigo} movida para a terceira posição.'
+        )
 
+        return redirect('adminSeletto')
 
 @method_decorator(role_required('admin', 'funcionario'), name='dispatch')
 class FinalizarSenhaView(View):
     def post(self, request):
-        senha_atual = Senha.objects.filter(
-            status='EM_ATENDENDO',
-            atendente=request.user.username
-        ).order_by('chamada_em').first()
-
-        if not senha_atual:
+        senha_id = request.POST.get('senha_id')
+        
+        if not senha_id:
+            messages.warning(
+                request,
+                'Nenhuma senha especificada para finalizar.'
+            )
+            return redirect('adminSeletto')
+        
+        try:
+            senha_atual = Senha.objects.get(
+                id=senha_id,
+                status='EM_ATENDENDO',
+                atendente=request.user.username
+            )
+        except Senha.DoesNotExist:
             messages.warning(
                 request,
                 'Nenhum atendimento ativo encontrado para o seu usuário.'
@@ -130,6 +177,86 @@ class FinalizarSenhaView(View):
 
         return redirect('adminSeletto')
 
+
+
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+class VoltarFilaView(View):
+
+    def post(self, request):
+
+        senha_id = request.POST.get('senha_id')
+
+        if not senha_id:
+            messages.warning(
+                request,
+                'Senha não informada.'
+            )
+            return redirect('adminSeletto')
+
+        try:
+            senha = Senha.objects.get(id=senha_id)
+
+        except Senha.DoesNotExist:
+            messages.warning(
+                request,
+                'Senha não encontrada.'
+            )
+            return redirect('adminSeletto')
+
+        # fila da mesma prioridade/categoria
+        fila = list(
+            Senha.objects.filter(
+                status='AGUARDANDO',
+                categoria__peso=senha.categoria.peso
+            ).exclude(
+                id=senha.id
+            ).order_by(
+                'criada_em'
+            )
+        )
+
+        senha.status = 'AGUARDANDO'
+        senha.atendente = None
+        senha.chamada_em = None
+        senha.finalizado_em = None
+
+        # coloca em terceiro
+        if len(fila) >= 3:
+
+            referencia = fila[2]
+
+            senha.criada_em = (
+                referencia.criada_em - timedelta(milliseconds=1)
+            )
+
+        elif len(fila) >= 2:
+
+            referencia = fila[1]
+
+            senha.criada_em = (
+                referencia.criada_em + timedelta(milliseconds=1)
+            )
+
+        elif len(fila) >= 1:
+
+            referencia = fila[0]
+
+            senha.criada_em = (
+                referencia.criada_em + timedelta(milliseconds=1)
+            )
+
+        else:
+            senha.criada_em = timezone.now()
+
+        senha.save()
+
+        messages.success(
+            request,
+            f'Senha {senha.codigo} voltou para a fila na terceira posição.'
+        )
+
+        return redirect('adminSeletto')
+    
 class HomeView(TemplateView):
     template_name = 'home/index.html'
 
@@ -443,9 +570,9 @@ class AcompanharFilaView(TemplateView):
             posicao = 0
             tempo_estimado = 0
             if senha.status == 'EM_ATENDENDO':
-                context['info'] = 'Sua senha já está em atendimento.'
+                context['info'] = 'Chegou a sua vez! Dirija-se ao atendimento, por favor.'
             else:
-                context['info'] = 'Seu atendimento já foi finalizado ou não está mais na fila.'
+                context['info'] = 'Esta senha já foi atendida e não se encontra mais na fila de espera.'
 
         context.update({
             'senha': senha.codigo,
@@ -460,19 +587,19 @@ class AcompanharFilaView(TemplateView):
 
 def display_partial(request):
 
-    # senha atual
-    senha_atual_obj = Senha.objects.filter(
+    # senhas em atendimento
+    senhas_atendendo_obj = Senha.objects.filter(
         status='EM_ATENDENDO'
-    ).select_related('categoria').first()
+    ).select_related('categoria').order_by('chamada_em')
 
-    if senha_atual_obj:
-        senha_atual = {
-            'codigo': senha_atual_obj.codigo,
-            'tipo': senha_atual_obj.categoria.nome,
-            'cliente_nome': senha_atual_obj.cliente_nome,
+    senhas_atendendo = [
+        {
+            'codigo': senha.codigo,
+            'tipo': senha.categoria.nome,
+            'cliente_nome': senha.cliente_nome,
         }
-    else:
-        senha_atual = None
+        for senha in senhas_atendendo_obj
+    ]
 
     # próximas senhas
     proximas_senhas_obj = Senha.objects.filter(
@@ -493,7 +620,7 @@ def display_partial(request):
     ]
 
     context = {
-        'senha_atual': senha_atual,
+        'senhas_atendendo': senhas_atendendo,
         'proximas_senhas': proximas_senhas
     }
 
@@ -560,14 +687,15 @@ def admin_stats_partial(request):
 @role_required('admin', 'funcionario')
 def admin_atendimento_partial(request):
 
-    senha_atual = Senha.objects.select_related(
+    senhas_atendendo = Senha.objects.select_related(
         'categoria'
     ).filter(
-        status='EM_ATENDENDO'
-    ).first()
+        status='EM_ATENDENDO',
+        atendente=request.user.username
+    ).order_by('chamada_em')
 
     context = {
-        'senha_atual': senha_atual
+        'senhas_atendendo': senhas_atendendo
     }
 
     return render(
@@ -677,3 +805,50 @@ def fila_status_partial(request):
         'partials/fila_status.html',
         context
     )
+
+
+@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+class AtendidosView(TemplateView):
+
+    template_name = 'adminSeletto/atendidos.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        atendidos = Senha.objects.select_related(
+            'categoria'
+        ).filter(
+            status='FINALIZADO'
+        ).order_by(
+            '-finalizado_em'
+        )
+
+        context['atendidos'] = atendidos
+
+        return context
+    
+@role_required('admin', 'funcionario')
+def excluir_atendido(request, senha_id):
+
+    try:
+        senha = Senha.objects.get(
+            id=senha_id,
+            status='FINALIZADO'
+        )
+
+        senha.delete()
+
+        messages.success(
+            request,
+            f'Atendimento {senha.codigo} excluído com sucesso.'
+        )
+
+    except Senha.DoesNotExist:
+
+        messages.warning(
+            request,
+            'Atendimento não encontrado.'
+        )
+
+    return redirect('atendidos')
