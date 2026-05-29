@@ -31,6 +31,11 @@ class Command(BaseCommand):
                 'password': config('TOTEM_PASSWORD'),
                 'tipo_usuario': 'totem',
             },
+            {
+                'username': config('GERENTE_USER'),
+                'password': config('GERENTE_PASSWORD'),
+                'tipo_usuario': 'gerente',
+            },
         ]
 
         for data in usuarios:

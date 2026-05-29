@@ -8,6 +8,7 @@ class User(AbstractUser):
         ('funcionario', 'Funcionário'),
         ('tv', 'TV'),
         ('totem', 'Totem'),
+        ('gerente', 'Gerente'),
     )
 
     tipo_usuario = models.CharField(

@@ -21,7 +21,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class ChamarProximaView(View):
     def post(self, request):
 
@@ -58,7 +58,7 @@ class ChamarProximaView(View):
 
 from datetime import timedelta
 
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class PularSenhaView(View):
 
     def post(self, request):
@@ -137,7 +137,7 @@ class PularSenhaView(View):
 
         return redirect('adminSeletto')
 
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class FinalizarSenhaView(View):
     def post(self, request):
         senha_id = request.POST.get('senha_id')
@@ -248,7 +248,7 @@ class FinalizarSenhaView(View):
 
 
 
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'gerente', 'funcionario'), name='dispatch')
 class VoltarFilaView(View):
 
     def post(self, request):
@@ -875,8 +875,7 @@ def fila_status_partial(request):
         context
     )
 
-
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'gerente'), name='dispatch')
 class AtendidosView(TemplateView):
 
     template_name = 'adminSeletto/atendidos.html'
@@ -897,7 +896,7 @@ class AtendidosView(TemplateView):
 
         return context
     
-@role_required('admin', 'funcionario')
+@role_required('admin')
 def excluir_atendido(request, senha_id):
 
     try:
