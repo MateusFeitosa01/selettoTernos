@@ -1,0 +1,482 @@
+<!-- Modal de Observações do Atendimento -->
+<div class="modal fade" id="modalObservacoes" tabindex="-1" aria-labelledby="modalObservacoesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="background-color: rgb(23, 23, 23); border: none;">
+      <div class="modal-header" style="border-bottom: 1px solid rgb(50, 50, 50);">
+        <h5 class="modal-title text-white" id="modalObservacoesLabel">Finalizar Atendimento - Observações</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-white">
+        <form id="formObservacoes" method="POST" action="{% url 'finalizar_senha' %}">
+          {% csrf_token %}
+          <input type="hidden" name="senha_id" id="idSenha" value="">
+          <input type="hidden" name="com_observacoes" value="true">
+
+          <!-- Status: Fechou ou Não Fechou -->
+          <div class="mb-4">
+            <label class="fs-5 fw-semibold mb-3 d-block">Venda Fechou?</label>
+            <div class="d-flex gap-4">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" value="FECHOU" id="statusFechou" required>
+                <label class="form-check-label text-white" for="statusFechou">
+                  Fechou
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" value="NAO_FECHOU" id="statusNaoFechou">
+                <label class="form-check-label text-white" for="statusNaoFechou">
+                  Não Fechou
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção FECHOU -->
+          <div id="secaoFechou" style="display: none;">
+            <hr style="border-color: rgb(50, 50, 50);">
+            
+            <!-- Tipo de Evento -->
+            <div class="mb-3">
+              <label for="tipoEventoFechou" class="form-label text-white">Qual evento?</label>
+              <select id="tipoEventoFechou" name="tipo_evento_fechou" class="form-select rounded-4 py-3 px-4 border-0 text-white" style="background-color: rgb(38, 38, 38);">
+                <option value="">Selecione o tipo de evento</option>
+                <option value="ANIVERSARIO">Aniversário</option>
+                <option value="CASAMENTO">Casamento</option>
+                <option value="FORMATURA">Formatura</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+
+            <!-- Campos para Casamento (Fechou) -->
+            <div id="camposCasamentoFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomesNoivosFechou" class="form-label text-white">Nomes dos noivos</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomesNoivosFechou" name="nomes_noivos_fechou" placeholder="Nome do casal" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6">
+                  <label for="contatoNoivosFechou" class="form-label text-white">Contato dos noivos</label>
+                  <input type="tel" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="contatoNoivosFechou" name="contato_noivos_fechou" placeholder="(XX) XXXXX-XXXX" style="background-color: rgb(38, 38, 38);">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos para Formatura (Fechou) -->
+            <div id="camposFormaturaFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="contatoFormandoFechou" class="form-label text-white">Contato do formando</label>
+                  <input type="tel" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="contatoFormandoFechou" name="contato_formando_fechou" placeholder="(XX) XXXXX-XXXX" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                  <label for="universidadeFechou" class="form-label text-white">Universidade</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="universidadeFechou" name="universidade_fechou" placeholder="Universidade" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6">
+                  <label for="cursoFechou" class="form-label text-white">Curso</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="cursoFechou" name="curso_fechou" placeholder="Curso" style="background-color: rgb(38, 38, 38);">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos para Aniversário (Fechou) -->
+            <div id="camposAniversarioFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomeAniversarianteFechou" class="form-label text-white">Nome do aniversariante <span class="text-muted">(opcional)</span></label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomeAniversarianteFechou" name="nome_aniversariante_fechou" placeholder="Nome do aniversariante" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+            </div>
+
+            <!-- Campos para Outro (Fechou) -->
+            <div id="camposOutroFechou" style="display: none;" class="mb-3">
+              <div class="mb-3">
+                <label for="tipoEventoOutroFechou" class="form-label text-white">Qual é o tipo de evento?</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="tipoEventoOutroFechou" name="tipo_evento_outro_fechou" placeholder="Ex: Reunião corporativa, Workshop, etc." style="background-color: rgb(38, 38, 38);">
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomeClienteObs" class="form-label text-white">Nome do cliente</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomeClienteObs" name="nome_cliente_obs_fechou" placeholder="Nome do cliente" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+              <div class="mt-3">
+                <label for="descricaoFechou" class="form-label text-white">Descrição</label>
+                <textarea class="form-control rounded-4 py-3 px-4 border-0 text-white" id="descricaoFechou" name="descricao_fechou" placeholder="Descreva detalhes do atendimento" rows="4" style="background-color: rgb(38, 38, 38);"></textarea>
+              </div>
+            </div>
+
+            <!-- Data e Local (Fechou) -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="dataEventoFechou" class="form-label text-white">Data do evento</label>
+                <input type="date" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="dataEventoFechou" name="data_evento_fechou" style="background-color: rgb(38, 38, 38); color-scheme: dark;">
+              </div>
+              <div class="col-md-6"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="cidadeFechou" class="form-label text-white">Cidade do evento</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="cidadeFechou" name="cidade_fechou" placeholder="Cidade" style="background-color: rgb(38, 38, 38);">
+              </div>
+              <div class="col-md-6">
+                <label for="localFechou" class="form-label text-white">Local do evento</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="localFechou" name="local_fechou" placeholder="Venue/Salão" style="background-color: rgb(38, 38, 38);">
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção NÃO FECHOU -->
+          <div id="secaoNaoFechou" style="display: none;">
+            <hr style="border-color: rgb(50, 50, 50);">
+            
+            <!-- Motivo do não fechamento -->
+            <div class="mb-3">
+              <label for="motivoNaoFechamento" class="form-label text-white">Motivo do não fechamento</label>
+              <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="motivoNaoFechamento" name="motivo_nao_fechamento" placeholder="Ex: Cliente indeciso, orçamento alto, etc." style="background-color: rgb(38, 38, 38);">
+            </div>
+
+            <!-- Tipo de Evento (para futuro) -->
+            <div class="mb-3">
+              <label for="tipoEventoNaoFechou" class="form-label text-white">Qual seria o evento?</label>
+              <select id="tipoEventoNaoFechou" name="tipo_evento_nao_fechou" class="form-select rounded-4 py-3 px-4 border-0 text-white" style="background-color: rgb(38, 38, 38);">
+                <option value="">Selecione o tipo de evento</option>
+                <option value="ANIVERSARIO">Aniversário</option>
+                <option value="CASAMENTO">Casamento</option>
+                <option value="FORMATURA">Formatura</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+
+            <!-- Campos para Casamento (Não Fechou) -->
+            <div id="camposCasamentoNaoFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomesNoivosNaoFechou" class="form-label text-white">Nomes dos noivos</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomesNoivosNaoFechou" name="nomes_noivos_nao_fechou" placeholder="Nome do casal" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6">
+                  <label for="contatoNoivosNaoFechou" class="form-label text-white">Contato dos noivos</label>
+                  <input type="tel" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="contatoNoivosNaoFechou" name="contato_noivos_nao_fechou" placeholder="(XX) XXXXX-XXXX" style="background-color: rgb(38, 38, 38);">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos para Formatura (Não Fechou) -->
+            <div id="camposFormaturaNaoFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="contatoFormandoNaoFechou" class="form-label text-white">Contato do formando</label>
+                  <input type="tel" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="contatoFormandoNaoFechou" name="contato_formando_nao_fechou" placeholder="(XX) XXXXX-XXXX" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                  <label for="universidadeNaoFechou" class="form-label text-white">Universidade</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="universidadeNaoFechou" name="universidade_nao_fechou" placeholder="Universidade" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6">
+                  <label for="cursoNaoFechou" class="form-label text-white">Curso</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="cursoNaoFechou" name="curso_nao_fechou" placeholder="Curso" style="background-color: rgb(38, 38, 38);">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos para Aniversário (Não Fechou) -->
+            <div id="camposAniversarioNaoFechou" style="display: none;" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomeAniversarianteNaoFechou" class="form-label text-white">Nome do aniversariante <span class="text-muted">(opcional)</span></label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomeAniversarianteNaoFechou" name="nome_aniversariante_nao_fechou" placeholder="Nome do aniversariante" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+            </div>
+
+            <!-- Campos para Outro (Não Fechou) -->
+            <div id="camposOutroNaoFechou" style="display: none;" class="mb-3">
+              <div class="mb-3">
+                <label for="tipoEventoOutroNaoFechou" class="form-label text-white">Qual seria o tipo de evento?</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="tipoEventoOutroNaoFechou" name="tipo_evento_outro_nao_fechou" placeholder="Ex: Reunião corporativa, Workshop, etc." style="background-color: rgb(38, 38, 38);">
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nomeClienteObsNaoFechou" class="form-label text-white">Nome do cliente</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="nomeClienteObsNaoFechou" name="nome_cliente_obs_nao_fechou" placeholder="Nome do cliente" style="background-color: rgb(38, 38, 38);">
+                </div>
+                <div class="col-md-6"></div>
+              </div>
+              <div class="mt-3">
+                <label for="descricaoNaoFechou" class="form-label text-white">Descrição</label>
+                <textarea class="form-control rounded-4 py-3 px-4 border-0 text-white" id="descricaoNaoFechou" name="descricao_nao_fechou" placeholder="Descreva detalhes do atendimento" rows="4" style="background-color: rgb(38, 38, 38);"></textarea>
+              </div>
+            </div>
+
+            <!-- Data e Local (Não Fechou) -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="dataEventoNaoFechou" class="form-label text-white">Data prevista do evento</label>
+                <input type="date" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="dataEventoNaoFechou" name="data_evento_nao_fechou" style="background-color: rgb(38, 38, 38); color-scheme: dark;">
+              </div>
+              <div class="col-md-6"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="cidadeNaoFechou" class="form-label text-white">Cidade do evento</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="cidadeNaoFechou" name="cidade_nao_fechou" placeholder="Cidade" style="background-color: rgb(38, 38, 38);">
+              </div>
+              <div class="col-md-6">
+                <label for="localNaoFechou" class="form-label text-white">Local do evento</label>
+                <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="localNaoFechou" name="local_nao_fechou" placeholder="Venue/Salão" style="background-color: rgb(38, 38, 38);">
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões -->
+          <div class="modal-footer" style="border-top: 1px solid rgb(50, 50, 50);">
+            <button type="button" class="btn btn-secondary rounded-4 px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn text-black border-0 rounded-4 px-4" style="background-color: white;">Finalizar Atendimento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Função para mostrar/ocultar seções
+  function atualizarSecoes() {
+    const statusFechou = document.getElementById('statusFechou').checked;
+    const statusNaoFechou = document.getElementById('statusNaoFechou').checked;
+    
+    const secaoFechou = document.getElementById('secaoFechou');
+    const secaoNaoFechou = document.getElementById('secaoNaoFechou');
+    
+    secaoFechou.style.display = statusFechou ? 'block' : 'none';
+    secaoNaoFechou.style.display = statusNaoFechou ? 'block' : 'none';
+    
+    // Limpar valores quando ocultar (FECHOU)
+    if (!statusFechou) {
+      document.getElementById('tipoEventoFechou').value = '';
+      document.getElementById('dataEventoFechou').value = '';
+      document.getElementById('cidadeFechou').value = '';
+      document.getElementById('localFechou').value = '';
+      document.getElementById('nomesNoivosFechou').value = '';
+      document.getElementById('contatoNoivosFechou').value = '';
+      document.getElementById('universidadeFechou').value = '';
+      document.getElementById('cursoFechou').value = '';
+      document.getElementById('contatoFormandoFechou').value = '';
+      document.getElementById('nomeAniversarianteFechou').value = '';
+      document.getElementById('tipoEventoOutroFechou').value = '';
+      document.getElementById('nomeClienteObs').value = '';
+      document.getElementById('descricaoFechou').value = '';
+    }
+    
+    // Limpar valores quando ocultar (NAO_FECHOU)
+    if (!statusNaoFechou) {
+      document.getElementById('tipoEventoNaoFechou').value = '';
+      document.getElementById('motivoNaoFechamento').value = '';
+      document.getElementById('dataEventoNaoFechou').value = '';
+      document.getElementById('cidadeNaoFechou').value = '';
+      document.getElementById('localNaoFechou').value = '';
+      document.getElementById('nomesNoivosNaoFechou').value = '';
+      document.getElementById('contatoNoivosNaoFechou').value = '';
+      document.getElementById('universidadeNaoFechou').value = '';
+      document.getElementById('cursoNaoFechou').value = '';
+      document.getElementById('contatoFormandoNaoFechou').value = '';
+      document.getElementById('nomeAniversarianteNaoFechou').value = '';
+      document.getElementById('tipoEventoOutroNaoFechou').value = '';
+      document.getElementById('nomeClienteObsNaoFechou').value = '';
+      document.getElementById('descricaoNaoFechou').value = '';
+    }
+  }
+  
+  // Função para mostrar campos de evento específicos (Fechou)
+  function atualizarCamposEventoFechou() {
+    const tipoEvento = document.getElementById('tipoEventoFechou').value;
+    document.getElementById('camposCasamentoFechou').style.display = tipoEvento === 'CASAMENTO' ? 'block' : 'none';
+    document.getElementById('camposFormaturaFechou').style.display = tipoEvento === 'FORMATURA' ? 'block' : 'none';
+    document.getElementById('camposAniversarioFechou').style.display = tipoEvento === 'ANIVERSARIO' ? 'block' : 'none';
+    document.getElementById('camposOutroFechou').style.display = tipoEvento === 'OUTRO' ? 'block' : 'none';
+  }
+  
+  // Função para mostrar campos de evento específicos (Não Fechou)
+  function atualizarCamposEventoNaoFechou() {
+    const tipoEvento = document.getElementById('tipoEventoNaoFechou').value;
+    document.getElementById('camposCasamentoNaoFechou').style.display = tipoEvento === 'CASAMENTO' ? 'block' : 'none';
+    document.getElementById('camposFormaturaNaoFechou').style.display = tipoEvento === 'FORMATURA' ? 'block' : 'none';
+    document.getElementById('camposAniversarioNaoFechou').style.display = tipoEvento === 'ANIVERSARIO' ? 'block' : 'none';
+    document.getElementById('camposOutroNaoFechou').style.display = tipoEvento === 'OUTRO' ? 'block' : 'none';
+  }
+  
+  // Event listeners
+  document.getElementById('statusFechou').addEventListener('change', atualizarSecoes);
+  document.getElementById('statusNaoFechou').addEventListener('change', atualizarSecoes);
+  document.getElementById('tipoEventoFechou').addEventListener('change', atualizarCamposEventoFechou);
+  document.getElementById('tipoEventoNaoFechou').addEventListener('change', atualizarCamposEventoNaoFechou);
+  
+  // Validação do formulário
+  document.getElementById('formObservacoes').addEventListener('submit', function(e) {
+    const statusFechou = document.getElementById('statusFechou').checked;
+    const statusNaoFechou = document.getElementById('statusNaoFechou').checked;
+    
+    if (!statusFechou && !statusNaoFechou) {
+      e.preventDefault();
+      alert('Por favor, indique se a venda fechou ou não.');
+      return false;
+    }
+    
+    if (statusFechou) {
+      const tipoEvento = document.getElementById('tipoEventoFechou').value;
+      
+      if (!tipoEvento) {
+        e.preventDefault();
+        alert('Por favor, selecione o tipo de evento.');
+        return false;
+      }
+      
+      if (!document.getElementById('dataEventoFechou').value) {
+        e.preventDefault();
+        alert('Por favor, indique a data do evento.');
+        return false;
+      }
+      
+      if (!document.getElementById('cidadeFechou').value) {
+        e.preventDefault();
+        alert('Por favor, indique a cidade do evento.');
+        return false;
+      }
+      
+      if (!document.getElementById('localFechou').value) {
+        e.preventDefault();
+        alert('Por favor, indique o local do evento.');
+        return false;
+      }
+      
+      if (tipoEvento === 'CASAMENTO') {
+        if (!document.getElementById('nomesNoivosFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique os nomes dos noivos.');
+          return false;
+        }
+        if (!document.getElementById('contatoNoivosFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o contato dos noivos.');
+          return false;
+        }
+      }
+      
+      if (tipoEvento === 'FORMATURA') {
+        if (!document.getElementById('universidadeFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique a universidade.');
+          return false;
+        }
+        if (!document.getElementById('cursoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o curso.');
+          return false;
+        }
+        if (!document.getElementById('contatoFormandoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o contato do formando.');
+          return false;
+        }
+      }
+      
+      if (tipoEvento === 'OUTRO') {
+        if (!document.getElementById('tipoEventoOutroFechou').value) {
+          e.preventDefault();
+          alert('Por favor, descreva o tipo de evento.');
+          return false;
+        }
+        if (!document.getElementById('nomeClienteObs').value) {
+          e.preventDefault();
+          alert('Por favor, indique o nome do cliente.');
+          return false;
+        }
+        if (!document.getElementById('descricaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, adicione uma descrição.');
+          return false;
+        }
+      }
+    }
+    
+    if (statusNaoFechou) {
+      if (!document.getElementById('motivoNaoFechamento').value) {
+        e.preventDefault();
+        alert('Por favor, indique o motivo do não fechamento.');
+        return false;
+      }
+      
+      const tipoEvento = document.getElementById('tipoEventoNaoFechou').value;
+      
+      if (!tipoEvento) {
+        e.preventDefault();
+        alert('Por favor, selecione qual seria o tipo de evento.');
+        return false;
+      }
+      
+      if (tipoEvento === 'CASAMENTO') {
+        if (!document.getElementById('nomesNoivosNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique os nomes dos noivos.');
+          return false;
+        }
+        if (!document.getElementById('contatoNoivosNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o contato dos noivos.');
+          return false;
+        }
+      }
+      
+      if (tipoEvento === 'FORMATURA') {
+        if (!document.getElementById('universidadeNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique a universidade.');
+          return false;
+        }
+        if (!document.getElementById('cursoNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o curso.');
+          return false;
+        }
+        if (!document.getElementById('contatoFormandoNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o contato do formando.');
+          return false;
+        }
+      }
+      
+      if (tipoEvento === 'OUTRO') {
+        if (!document.getElementById('tipoEventoOutroNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, descreva o tipo de evento.');
+          return false;
+        }
+        if (!document.getElementById('nomeClienteObsNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, indique o nome do cliente.');
+          return false;
+        }
+        if (!document.getElementById('descricaoNaoFechou').value) {
+          e.preventDefault();
+          alert('Por favor, adicione uma descrição.');
+          return false;
+        }
+      }
+    }
+  });
+});
+</script>

@@ -40,37 +40,28 @@
             </form>
 
             <!-- FINALIZAR -->
-            <form method="POST"
-                action="{% url 'finalizar_senha' %}"
-                style="display: inline;"
-                onsubmit="return confirm('Confirmar finalização deste atendimento?');">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                    name="senha_id"
-                    value="{{ senha_atual.id }}">
-
-                <button type="submit"
-                        class="btn btn-sm rounded-3"
-                        style="
-                            background-color: #d9d9d9;
-                            border: none;
-                            color: #222;
-                            transition: 0.2s ease;
-                        "
-                        onmouseover="
-                            this.style.backgroundColor='#dc3545';
-                            this.style.color='white';
-                        "
-                        onmouseout="
-                            this.style.backgroundColor='#d9d9d9';
-                            this.style.color='#222';
-                        ">
-                    <i class="bi bi-x-circle"></i>
-                    Finalizar
-                </button>
-            </form>
+            <button type="button"
+                    class="btn btn-sm rounded-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalObservacoes"
+                    onclick="document.getElementById('idSenha').value = '{{ senha_atual.id }}'"
+                    style="
+                        background-color: #d9d9d9;
+                        border: none;
+                        color: #222;
+                        transition: 0.2s ease;
+                    "
+                    onmouseover="
+                        this.style.backgroundColor='#dc3545';
+                        this.style.color='white';
+                    "
+                    onmouseout="
+                        this.style.backgroundColor='#d9d9d9';
+                        this.style.color='#222';
+                    ">
+                <i class="bi bi-x-circle"></i>
+                Finalizar
+            </button>
 
         </div>
 

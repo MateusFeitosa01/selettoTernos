@@ -102,3 +102,129 @@ class Senha(models.Model):
     def __str__(self):
         return self.codigo
 
+
+class ObservacaoAtendimento(models.Model):
+    STATUS_CHOICES = (
+        ('FECHOU', 'Fechou'),
+        ('NAO_FECHOU', 'Não Fechou'),
+    )
+    
+    TIPO_EVENTO_CHOICES = (
+        ('ANIVERSARIO', 'Aniversário'),
+        ('CASAMENTO', 'Casamento'),
+        ('FORMATURA', 'Formatura'),
+        ('OUTRO', 'Outro'),
+    )
+    
+    senha = models.OneToOneField(
+        Senha,
+        on_delete=models.CASCADE,
+        related_name='observacao'
+    )
+    
+    # Campo principal
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        null=True,
+        blank=True
+    )
+    
+    # Campos comuns
+    tipo_evento = models.CharField(
+        max_length=20,
+        choices=TIPO_EVENTO_CHOICES,
+        null=True,
+        blank=True
+    )
+    
+    data_evento = models.DateField(
+        null=True,
+        blank=True
+    )
+    
+    cidade = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+    
+    local = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    
+    # Campos específicos para casamento
+    nomes_noivos = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    
+    contato_noivos = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True
+    )
+    
+    # Campos específicos para formatura
+    universidade = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    
+    curso = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    
+    contato_formando = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True
+    )
+    
+    # Campos específicos para aniversário
+    nome_aniversariante = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+    
+    # Campos específicos para tipo "OUTRO"
+    tipo_evento_outro = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Descrição personalizada do tipo de evento quando 'OUTRO' é selecionado"
+    )
+    
+    nome_cliente_observacao = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Nome do cliente fornecido na observação (quando tipo OUTRO)"
+    )
+    
+    descricao = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Descrição adicional do atendimento"
+    )
+    
+    # Campos específicos para não fechamento
+    motivo_nao_fechamento = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    
+    # Data de criação
+    criada_em = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Observação - {self.senha.codigo}"
+

@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from filas.models import Categoria, Senha
+from filas.models import Categoria, Senha, ObservacaoAtendimento
 from atendimentos.models import Atendimento
 from .forms import ClienteForm
 from django.views import View
@@ -141,6 +141,7 @@ class PularSenhaView(View):
 class FinalizarSenhaView(View):
     def post(self, request):
         senha_id = request.POST.get('senha_id')
+        com_observacoes = request.POST.get('com_observacoes')
         
         if not senha_id:
             messages.warning(
@@ -161,6 +162,74 @@ class FinalizarSenhaView(View):
                 'Nenhum atendimento ativo encontrado para o seu usuário.'
             )
             return redirect('adminSeletto')
+
+        # Se tem observações, processar formulário
+        if com_observacoes:
+            status = request.POST.get('status')
+            
+            # Criar ou atualizar observação
+            observacao, created = ObservacaoAtendimento.objects.get_or_create(
+                senha=senha_atual
+            )
+            
+            observacao.status = status
+            
+            if status == 'FECHOU':
+                observacao.tipo_evento = request.POST.get('tipo_evento_fechou')
+                observacao.data_evento = request.POST.get('data_evento_fechou') or None
+                observacao.cidade = request.POST.get('cidade_fechou')
+                observacao.local = request.POST.get('local_fechou')
+                
+                # Campos de casamento
+                if observacao.tipo_evento == 'CASAMENTO':
+                    observacao.nomes_noivos = request.POST.get('nomes_noivos_fechou')
+                    observacao.contato_noivos = request.POST.get('contato_noivos_fechou')
+                
+                # Campos de formatura
+                elif observacao.tipo_evento == 'FORMATURA':
+                    observacao.contato_formando = request.POST.get('contato_formando_fechou')
+                    observacao.universidade = request.POST.get('universidade_fechou')
+                    observacao.curso = request.POST.get('curso_fechou')
+                
+                # Campos de aniversário
+                elif observacao.tipo_evento == 'ANIVERSARIO':
+                    observacao.nome_aniversariante = request.POST.get('nome_aniversariante_fechou')
+                
+                # Campos de outro
+                elif observacao.tipo_evento == 'OUTRO':
+                    observacao.tipo_evento_outro = request.POST.get('tipo_evento_outro_fechou')
+                    observacao.nome_cliente_observacao = request.POST.get('nome_cliente_obs_fechou')
+                    observacao.descricao = request.POST.get('descricao_fechou')
+            
+            elif status == 'NAO_FECHOU':
+                observacao.motivo_nao_fechamento = request.POST.get('motivo_nao_fechamento')
+                observacao.tipo_evento = request.POST.get('tipo_evento_nao_fechou')
+                observacao.data_evento = request.POST.get('data_evento_nao_fechou') or None
+                observacao.cidade = request.POST.get('cidade_nao_fechou')
+                observacao.local = request.POST.get('local_nao_fechou')
+                
+                # Campos de casamento
+                if observacao.tipo_evento == 'CASAMENTO':
+                    observacao.nomes_noivos = request.POST.get('nomes_noivos_nao_fechou')
+                    observacao.contato_noivos = request.POST.get('contato_noivos_nao_fechou')
+                
+                # Campos de formatura
+                elif observacao.tipo_evento == 'FORMATURA':
+                    observacao.contato_formando = request.POST.get('contato_formando_nao_fechou')
+                    observacao.universidade = request.POST.get('universidade_nao_fechou')
+                    observacao.curso = request.POST.get('curso_nao_fechou')
+                
+                # Campos de aniversário
+                elif observacao.tipo_evento == 'ANIVERSARIO':
+                    observacao.nome_aniversariante = request.POST.get('nome_aniversariante_nao_fechou')
+                
+                # Campos de outro
+                elif observacao.tipo_evento == 'OUTRO':
+                    observacao.tipo_evento_outro = request.POST.get('tipo_evento_outro_nao_fechou')
+                    observacao.nome_cliente_observacao = request.POST.get('nome_cliente_obs_nao_fechou')
+                    observacao.descricao = request.POST.get('descricao_nao_fechou')
+            
+            observacao.save()
 
         # finaliza atendimento
         senha_atual.status = 'FINALIZADO'

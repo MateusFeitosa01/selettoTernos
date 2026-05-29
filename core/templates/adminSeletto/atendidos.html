@@ -27,51 +27,51 @@ Atendidos
     </div>
 
     <!-- FILTROS -->
-<div class="row g-3 mb-4">
+    <div class="row g-3 mb-4">
 
-    <!-- PESQUISA -->
-    <div class="col-md-6">
-        
-        <input type="text"
-            id="pesquisaAtendidos"
-            placeholder="Pesquisar por nome, telefone, email ou senha..."
-            class="form-control rounded-4 py-3 px-4 border-0 text-white"
-            style="
-                    background-color: rgb(23,23,23);
-                    font-size: 1rem;
-            ">
-
-    </div>
-
-    <!-- FILTRO TIPO -->
-    <div class="col-md-3">
-
-        <select id="filtroCategoria"
-                class="form-select rounded-4 py-3 px-4 border-0 text-white"
+        <!-- PESQUISA -->
+        <div class="col-md-3">
+            
+            <input type="text"
+                id="pesquisaAtendidos"
+                placeholder="Pesquisar por nome, telefone, email ou senha..."
+                class="form-control rounded-4 py-3 px-4 border-0 text-white"
                 style="
-                    background-color: rgb(23,23,23);
-                    font-size: 1rem;
+                        background-color: rgb(23,23,23);
+                        font-size: 1rem;
                 ">
 
-            <option value="">
-                Tipo de senha
-            </option>
+        </div>
 
-            {% regroup atendidos by categoria.nome as categorias %}
+        <!-- FILTRO TIPO -->
+        <div class="col-md-3">
 
-            {% for categoria in categorias %}
+            <select id="filtroCategoria"
+                    class="form-select rounded-4 py-3 px-4 border-0 text-white"
+                    style="
+                        background-color: rgb(23,23,23);
+                        font-size: 1rem;
+                    ">
 
-                <option value="{{ categoria.grouper }}">
-                    {{ categoria.grouper }}
+                <option value="">
+                    Tipo de senha
                 </option>
 
-            {% endfor %}
+                {% regroup atendidos by categoria.nome as categorias %}
 
-        </select>
+                {% for categoria in categorias %}
 
-    </div>
+                    <option value="{{ categoria.grouper }}">
+                        {{ categoria.grouper }}
+                    </option>
 
-    <!-- FILTRO DATA -->
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <!-- FILTRO DATA -->
         <div class="col-md-3">
 
             <div class="position-relative">
@@ -98,16 +98,43 @@ Atendidos
 
         </div>
 
-</div>
+        <!-- FILTRO STATUS DA VENDA -->
+        <div class="col-md-3">
+
+            <select id="filtroVenda"
+                    class="form-select rounded-4 py-3 px-4 border-0 text-white"
+                    style="
+                        background-color: rgb(23,23,23);
+                        font-size: 1rem;
+                    ">
+
+                <option value="">
+                    Status da venda
+                </option>
+
+                <option value="FECHOU">
+                    Venda Realizada
+                </option>
+
+                <option value="NAO_FECHOU">
+                    Venda Não Realizada
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
     {% if atendidos %}
 
         <div class="d-flex flex-column gap-3">
 
             {% for senha in atendidos %}
 
-            <div class="card-atendimento"
-                    data-categoria="{{ senha.categoria.nome }}"
-                    data-data="{{ senha.finalizado_em|date:'Y-m-d' }}">
+            <div class="card-atendimento mt-3"
+                data-categoria="{{ senha.categoria.nome }}"
+                data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
+                data-status="{{ senha.observacao.status|default:'' }}">
 
                 <!-- CARD -->
                     <div class="bg-white text-black rounded-4 p-4 position-relative"
@@ -230,7 +257,7 @@ Atendidos
                         display: none;
                      ">
 
-                    <div class="row g-4">
+                    <div class="row g-4 mb-4">
 
                         <div class="col-md-4">
 
@@ -270,7 +297,155 @@ Atendidos
 
                     </div>
 
-                </div>
+                    <!-- OBSERVAÇÕES DO ATENDIMENTO -->
+                    {% if senha.observacao %}
+                    <hr style="border-color: rgb(100, 100, 100); margin: 2rem 0;">
+                    
+                    <div>
+                        <h5 class="text-white mb-3">Observações do Atendimento</h5>
+                        
+                        {% if senha.observacao.status == 'FECHOU' %}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Status:</strong></p>
+                                    <p class="mb-2">✓ Venda Fechada</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Tipo de Evento:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.get_tipo_evento_display }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Data do Evento:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.data_evento|date:"d/m/Y"|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Cidade:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.cidade|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Local:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.local|default:"-" }}</p>
+                                </div>
+
+                                {% if senha.observacao.tipo_evento == 'CASAMENTO' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Noivos:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.nomes_noivos|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Contato dos Noivos:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.contato_noivos|default:"-" }}</p>
+                                    </div>
+                                {% elif senha.observacao.tipo_evento == 'FORMATURA' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Universidade:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.universidade|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Curso:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.curso|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Contato do Formando:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.contato_formando|default:"-" }}</p>
+                                    </div>
+                                {% elif senha.observacao.tipo_evento == 'ANIVERSARIO' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Nome do Aniversariante:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.nome_aniversariante|default:"-" }}</p>
+                                    </div>
+                                {% elif senha.observacao.tipo_evento == 'OUTRO' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Tipo de Evento:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.tipo_evento_outro|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Nome do Cliente:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.nome_cliente_observacao|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <p class="text-white mb-1"><strong>Descrição:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.descricao|default:"-"|linebreaks }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        
+                        {% elif senha.observacao.status == 'NAO_FECHOU' %}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Status:</strong></p>
+                                    <p class="mb-2">✗ Venda Não Fechada</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Motivo do Não Fechamento:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.motivo_nao_fechamento|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Motivo do Impedimento:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.motivo_impedimento|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Tipo de Evento (Futuro):</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.get_tipo_evento_display }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Data Prevista do Evento:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.data_evento|date:"d/m/Y"|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Cidade:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.cidade|default:"-" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Local:</strong></p>
+                                    <p class="mb-2">{{ senha.observacao.local|default:"-" }}</p>
+                                </div>
+
+                                {% if senha.observacao.tipo_evento == 'CASAMENTO' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Noivos:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.nomes_noivos|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Contato dos Noivos:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.contato_noivos|default:"-" }}</p>
+                                    </div>
+                                {% elif senha.observacao.tipo_evento == 'FORMATURA' %}
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Universidade:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.universidade|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Curso:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.curso|default:"-" }}</p>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <p class="text-white mb-1"><strong>Contato do Formando:</strong></p>
+                                        <p class="mb-2">{{ senha.observacao.contato_formando|default:"-" }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
 
                 <!-- DADOS OCULTOS PARA PESQUISA -->
                 <div class="dados-pesquisa d-none">
@@ -324,6 +499,8 @@ const filtroCategoria = document.getElementById('filtroCategoria');
 
 const filtroData = document.getElementById('filtroData');
 
+const filtroVenda = document.getElementById('filtroVenda');
+
 function aplicarFiltros() {
 
     const termo = pesquisa.value.toLowerCase();
@@ -331,6 +508,8 @@ function aplicarFiltros() {
     const categoria = filtroCategoria.value.toLowerCase();
 
     const data = filtroData.value;
+
+    const statusVenda = filtroVenda.value;
 
     const cards = document.querySelectorAll('.card-atendimento');
 
@@ -345,13 +524,17 @@ function aplicarFiltros() {
 
         const dataCard = card.dataset.data;
 
+        const statusCard = card.dataset.status;
+
         const batePesquisa = texto.includes(termo);
 
         const bateCategoria = !categoria || categoriaCard === categoria;
 
         const bateData = !data || dataCard === data;
 
-        if (batePesquisa && bateCategoria && bateData) {
+        const bateStatus = !statusVenda || statusCard === statusVenda;
+
+        if (batePesquisa && bateCategoria && bateData && bateStatus) {
 
             card.style.display = 'block';
 
@@ -370,6 +553,8 @@ pesquisa.addEventListener('keyup', aplicarFiltros);
 filtroCategoria.addEventListener('change', aplicarFiltros);
 
 filtroData.addEventListener('change', aplicarFiltros);
+
+filtroVenda.addEventListener('change', aplicarFiltros);
 
 </script>
 
