@@ -25,10 +25,12 @@ logger = logging.getLogger(__name__)
 class ChamarProximaView(View):
     def post(self, request):
 
-        atendente = request.user.username if request.user.is_authenticated else None
+        atendente = request.POST.get('atendente', '').strip()
 
         if not atendente:
+            messages.error(request, 'Informe o nome do atendente.')
             return redirect('adminSeletto')
+
 
         with transaction.atomic():
             # pega próxima senha
@@ -44,7 +46,7 @@ class ChamarProximaView(View):
                 return redirect('adminSeletto')
 
             # atualiza senha atual
-            senha.status = 'EM_ATENDENDO'
+            senha.status = 'EM_ATENDIMENTO'
             senha.atendente = atendente
             senha.chamada_em = timezone.now()
             senha.save()
@@ -64,8 +66,7 @@ class PularSenhaView(View):
     def post(self, request):
 
         senha_atual = Senha.objects.filter(
-            status='EM_ATENDENDO',
-            atendente=request.user.username
+        status='EM_ATENDIMENTO'
         ).order_by('chamada_em').first()
 
         if not senha_atual:
@@ -152,9 +153,8 @@ class FinalizarSenhaView(View):
         
         try:
             senha_atual = Senha.objects.get(
-                id=senha_id,
-                status='EM_ATENDENDO',
-                atendente=request.user.username
+            id=senha_id,
+            status='EM_ATENDIMENTO'
             )
         except Senha.DoesNotExist:
             messages.warning(
@@ -638,7 +638,7 @@ class AcompanharFilaView(TemplateView):
         else:
             posicao = 0
             tempo_estimado = 0
-            if senha.status == 'EM_ATENDENDO':
+            if senha.status == 'EM_ATENDIMENTO':
                 context['info'] = 'Chegou a sua vez! Dirija-se ao atendimento, por favor.'
             else:
                 context['info'] = 'Esta senha já foi atendida e não se encontra mais na fila de espera.'
@@ -759,8 +759,7 @@ def admin_atendimento_partial(request):
     senhas_atendendo = Senha.objects.select_related(
         'categoria'
     ).filter(
-        status='EM_ATENDENDO',
-        atendente=request.user.username
+        status='EM_ATENDIMENTO',
     ).order_by('chamada_em')
 
     context = {

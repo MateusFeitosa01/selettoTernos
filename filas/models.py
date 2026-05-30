@@ -35,7 +35,7 @@ class Senha(models.Model):
     STATUS = (
         ('AGUARDANDO', 'Aguardando'),
         ('CHAMADA', 'Chamada'),
-        ('EM_ATENDENDO', 'Em Atendendo'),
+        ('EM_ATENDIMENTO', 'Em Atendimento'),
         ('FINALIZADO', 'Finalizado'),
         ('ATENDIDA', 'Atendida'),
         ('CANCELADA', 'Cancelada'),
