@@ -19,6 +19,7 @@ from accounts.decorators import role_required
 import logging 
 
 
+
 logger = logging.getLogger(__name__)
 
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
@@ -371,7 +372,7 @@ class DisplayView(TemplateView):
         return context
 
 
-@method_decorator(role_required('admin', 'funcionario'), name='dispatch')
+@method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class AdminSelettoView(TemplateView):
     template_name = 'adminSeletto/dashboard.html'
 
@@ -503,24 +504,17 @@ class DadosClienteView(FormView):
                         pk=categoria.pk
                     )
 
-                    ultima_senha = Senha.objects.filter(
-                        categoria=categoria,
-                        codigo__startswith=prefixo
-                    ).order_by('-id').first()
+                    hoje = timezone.localdate()
 
-                    if ultima_senha:
+                    if categoria.ultima_data_reset != hoje:
+                        categoria.contador_atual = 0
+                        categoria.ultima_data_reset = hoje
+                        categoria.save()
 
-                        ultimo_numero = int(
-                            ultima_senha.codigo.replace(prefixo, '')
-                        )
+                    categoria.contador_atual += 1
+                    categoria.save()
 
-                        numero = ultimo_numero + 1
-
-                    else:
-
-                        numero = 1
-
-                    codigo = f'{prefixo}{numero:03d}'
+                    codigo = f'{categoria.prefixo}{categoria.contador_atual:03d}'
 
                     senha = Senha.objects.create(
                         codigo=codigo,
@@ -530,8 +524,7 @@ class DadosClienteView(FormView):
                         fila=categoria.fila,
                         categoria=categoria,
                     )
-
-                    break
+                break
 
             except IntegrityError:
 
@@ -726,7 +719,7 @@ def gerar_qr(request):
     
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
-@role_required('admin', 'funcionario')
+@role_required('admin', 'funcionario', 'gerente')
 def admin_stats_partial(request):
 
     aguardando = Senha.objects.filter(
@@ -753,7 +746,7 @@ def admin_stats_partial(request):
         context
     )
 
-@role_required('admin', 'funcionario')
+@role_required('admin', 'funcionario', 'gerente')
 def admin_atendimento_partial(request):
 
     senhas_atendendo = Senha.objects.select_related(
@@ -772,7 +765,7 @@ def admin_atendimento_partial(request):
         context
     )
 
-@role_required('admin', 'funcionario')
+@role_required('admin', 'funcionario', 'gerente')
 def admin_fila_partial(request):
 
     fila = Senha.objects.select_related(

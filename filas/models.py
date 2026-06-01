@@ -28,6 +28,13 @@ class Categoria(models.Model):
 
     ativa = models.BooleanField(default=True)
 
+    contador_atual = models.IntegerField(default=0)
+
+    ultima_data_reset = models.DateField(
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return self.nome
     
@@ -41,7 +48,7 @@ class Senha(models.Model):
         ('CANCELADA', 'Cancelada'),
     )
     
-    codigo = models.CharField(max_length=20, unique=True, db_index=True)
+    codigo = models.CharField(max_length=20,  db_index=True)
 
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
 
