@@ -339,7 +339,7 @@ class DisplayView(TemplateView):
 
         # Buscar senha atual sendo atendida
         senha_atual = Senha.objects.filter(
-            status='EM_ATENDENDO'
+            status='EM_ATENDIMENTO'
         ).select_related('categoria').first()
 
         if senha_atual:
@@ -383,7 +383,7 @@ class AdminSelettoView(TemplateView):
         aguardando = Senha.objects.filter(status='AGUARDANDO').count()
 
         em_atendimento = Senha.objects.filter(
-            status='EM_ATENDENDO'
+            status='EM_ATENDIMENTO'
         ).count()
 
         atendidos = Senha.objects.filter(
@@ -394,7 +394,7 @@ class AdminSelettoView(TemplateView):
         senha_atual = Senha.objects.select_related(
             'categoria'
         ).filter(
-            status='EM_ATENDENDO'
+            status='EM_ATENDIMENTO'
         ).first()
 
         # Fila
@@ -402,7 +402,7 @@ class AdminSelettoView(TemplateView):
             'categoria'
         ).filter(
             Q(status='AGUARDANDO') |
-            Q(status='EM_ATENDENDO')
+            Q(status='EM_ATENDIMENTO')
         ).order_by(
             '-categoria__peso',
             'criada_em'
@@ -651,7 +651,7 @@ def display_partial(request):
 
     # senhas em atendimento
     senhas_atendendo_obj = Senha.objects.filter(
-        status='EM_ATENDENDO'
+        status='EM_ATENDIMENTO'
     ).select_related('categoria').order_by('chamada_em')
 
     senhas_atendendo = [
@@ -727,7 +727,7 @@ def admin_stats_partial(request):
     ).count()
 
     em_atendimento = Senha.objects.filter(
-        status='EM_ATENDENDO'
+        status='EM_ATENDIMENTO'
     ).count()
 
     atendidos = Senha.objects.filter(
@@ -772,7 +772,7 @@ def admin_fila_partial(request):
         'categoria'
     ).filter(
         Q(status='AGUARDANDO') |
-        Q(status='EM_ATENDENDO')
+        Q(status='EM_ATENDIMENTO')
     ).order_by(
         '-categoria__peso',
         'criada_em'
@@ -851,7 +851,7 @@ def fila_status_partial(request):
     else:
         posicao = 0
         tempo_estimado = 0
-        if senha.status == 'EM_ATENDENDO':
+        if senha.status == 'EM_ATENDIMENTO':
             context['info'] = 'Sua senha já está em atendimento.'
         else:
             context['info'] = 'Seu atendimento já foi finalizado ou não está mais na fila.'
