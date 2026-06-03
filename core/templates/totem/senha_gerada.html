@@ -6,7 +6,8 @@ Preencha seus dados
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid bg-black min-vh-100 py-2 d-flex flex-column justify-content-center align-items-center text-white">
+<div class="container-fluid bg-black py-2 d-flex flex-column justify-content-center align-items-center text-white"
+     style="min-height: 100dvh;">
         <div class="text-center mb-4">
           <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-2" />
           <p class="fs-1 mb-1">Sua senha</p>
@@ -20,13 +21,50 @@ Preencha seus dados
             <div class="d-grid gap-3 mt-4 flex ">
                 <div class="text-center">
                     <p class="text-white mb-2">Escaneie para acompanhar sua posição</p>
-                    <img src="{% url 'gerar_qr' %}?token={{ token }}" alt="QR Code" class="img-fluid" style="max-width: 300px;" />
+                    <img
+                        src="{% url 'gerar_qr' %}?token={{ token }}"
+                        alt="QR Code"
+                        class="img-fluid"
+                        style="max-width:250px;"
+                    >
                 </div>
 
-                <a href="{% url 'totem' %}" class="btn btn-dark btn-lg rounded-4 py-3 fs-5 text-white">
+                <a href="{% url 'totem' %}"
+                id="btn-nova-senha"
+                class="btn btn-dark rounded-4 text-white"
+                style="padding: 16px 24px; font-size: 1.2rem;">
                     Retirar Nova Senha
                 </a>
             </div>
         </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    let tempo = 50;
+
+    const botao = document.getElementById('btn-nova-senha');
+
+    function atualizarTexto() {
+        botao.textContent = `Retirar Nova Senha (${tempo}s)`;
+    }
+
+    atualizarTexto(); // mostra 50s imediatamente
+
+    const intervalo = setInterval(() => {
+
+        tempo--;
+
+        atualizarTexto();
+
+        if (tempo <= 0) {
+            clearInterval(intervalo);
+            window.location.href = "{% url 'totem' %}";
+        }
+
+    }, 1000);
+
+});
+</script>
 {% endblock %}
