@@ -89,14 +89,22 @@ Preencha seus dados
                     </div>
 
                     <!-- Botão -->
-                    <div class="d-grid gap-3 mt-4 flex ">
-                        <button type="submit" class="btn btn-light btn-lg rounded-4 py-3 fs-5">
+                    <div class="d-grid gap-3 mt-4">
+
+                        <button
+                            type="submit"
+                            id="btn-continuar"
+                            class="btn btn-light btn-lg rounded-4 py-3 fs-5">
                             Continuar
                         </button>
 
-                        <a href="{% url 'totem' %}" class="btn btn-dark btn-lg rounded-4 py-3 fs-5 text-white">
+                        <a
+                            href="{% url 'totem' %}"
+                            id="btn-voltar"
+                            class="btn btn-dark btn-lg rounded-4 py-3 fs-5 text-white">
                             Voltar
                         </a>
+
                     </div>
 
                 </form>
@@ -106,54 +114,118 @@ Preencha seus dados
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-            const telefoneInput = document.getElementById('telefone');
+    // ==========================
+    // MÁSCARA DE TELEFONE
+    // ==========================
+    const telefoneInput = document.getElementById('telefone');
 
-            telefoneInput.addEventListener('input', function (e) {
+    telefoneInput.addEventListener('input', function (e) {
 
-                let valor = e.target.value;
+        let valor = e.target.value;
 
-                // remove tudo que não for número
-                valor = valor.replace(/\D/g, '');
+        // remove tudo que não for número
+        valor = valor.replace(/\D/g, '');
 
-                // limita a 11 números
-                valor = valor.substring(0, 11);
+        // limita a 11 números
+        valor = valor.substring(0, 11);
 
-                // formatação
-                if (valor.length > 10) {
+        // formatação
+        if (valor.length > 10) {
 
-                    valor = valor.replace(
-                        /^(\d{2})(\d{5})(\d{4}).*/,
-                        '($1) $2-$3'
-                    );
+            valor = valor.replace(
+                /^(\d{2})(\d{5})(\d{4}).*/,
+                '($1) $2-$3'
+            );
 
-                } else if (valor.length > 5) {
+        } else if (valor.length > 5) {
 
-                    valor = valor.replace(
-                        /^(\d{2})(\d{4})(\d{0,4}).*/,
-                        '($1) $2-$3'
-                    );
+            valor = valor.replace(
+                /^(\d{2})(\d{4})(\d{0,4}).*/,
+                '($1) $2-$3'
+            );
 
-                } else if (valor.length > 2) {
+        } else if (valor.length > 2) {
 
-                    valor = valor.replace(
-                        /^(\d{2})(\d{0,5})/,
-                        '($1) $2'
-                    );
+            valor = valor.replace(
+                /^(\d{2})(\d{0,5})/,
+                '($1) $2'
+            );
 
-                } else {
+        } else {
 
-                    valor = valor.replace(
-                        /^(\d*)/,
-                        '($1'
-                    );
-                }
+            valor = valor.replace(
+                /^(\d*)/,
+                '($1'
+            );
+        }
 
-                e.target.value = valor;
+        e.target.value = valor;
 
-            });
+    });
+
+    // ==========================
+    // BLOQUEIO DOS BOTÕES
+    // ==========================
+    let carregando = false;
+
+    const form = document.querySelector('form');
+    const btnContinuar = document.getElementById('btn-continuar');
+    const btnVoltar = document.getElementById('btn-voltar');
+
+    // Continuar
+    if (form) {
+        form.addEventListener('submit', function (e) {
+
+            if (carregando) {
+                e.preventDefault();
+                return false;
+            }
+
+            carregando = true;
+
+            btnContinuar.disabled = true;
+            btnContinuar.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2"></span>Carregando...';
 
         });
-        </script>
+    }
+
+    // Voltar
+    if (btnVoltar) {
+        btnVoltar.addEventListener('click', function (e) {
+
+            if (carregando) {
+                e.preventDefault();
+                return false;
+            }
+
+            carregando = true;
+
+            this.style.pointerEvents = 'none';
+            this.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2"></span>Carregando...';
+
+        });
+    }
+
+    // Safari / botão voltar
+    window.addEventListener('pageshow', function () {
+
+        carregando = false;
+
+        if (btnContinuar) {
+            btnContinuar.disabled = false;
+            btnContinuar.innerHTML = 'Continuar';
+        }
+
+        if (btnVoltar) {
+            btnVoltar.style.pointerEvents = '';
+            btnVoltar.innerHTML = 'Voltar';
+        }
+
+    });
+});
+</script>
 {% endblock %}
