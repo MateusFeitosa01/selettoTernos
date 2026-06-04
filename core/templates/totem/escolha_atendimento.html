@@ -251,6 +251,111 @@ Escolha o atendimento
             </div>
 
         </div>
+        <div id="loading-overlay" class="d-none">
+            <div class="text-center">
+                <div class="spinner-border text-light mb-3" role="status"></div>
+                <h4 class="text-white">Carregando...</h4>
+            </div>
+        </div>
     </div>
+    
 
+<style>
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-overlay.d-none {
+    display: none !important;
+}
+
+.atendimento-card.loading {
+    opacity: 0.7;
+    transform: scale(0.98);
+    transition: all 0.2s ease;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    var carregando = false;
+    var overlay = document.getElementById('loading-overlay');
+
+    // Garante que o loading esteja escondido ao entrar na página
+    if (overlay) {
+        overlay.classList.add('d-none');
+    }
+
+    // Quando voltar para a página pelo histórico
+    window.addEventListener('pageshow', function () {
+
+        carregando = false;
+
+        if (overlay) {
+            overlay.classList.add('d-none');
+        }
+
+        document.body.style.cursor = '';
+
+        var links = document.querySelectorAll('a[href]');
+        for (var i = 0; i < links.length; i++) {
+            links[i].style.pointerEvents = '';
+            links[i].style.cursor = '';
+        }
+
+        var cards = document.querySelectorAll('.atendimento-card');
+        for (var j = 0; j < cards.length; j++) {
+            cards[j].classList.remove('loading');
+        }
+
+    });
+
+    var links = document.querySelectorAll('a[href]');
+
+    for (var i = 0; i < links.length; i++) {
+
+        links[i].addEventListener('click', function (event) {
+
+            if (carregando) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+
+            carregando = true;
+
+            if (overlay) {
+                overlay.classList.remove('d-none');
+            }
+
+            var todosLinks = document.querySelectorAll('a[href]');
+            for (var k = 0; k < todosLinks.length; k++) {
+                todosLinks[k].style.pointerEvents = 'none';
+                todosLinks[k].style.cursor = 'wait';
+            }
+
+            var card = this.querySelector('.atendimento-card');
+            if (card) {
+                card.classList.add('loading');
+            }
+
+            document.body.style.cursor = 'wait';
+
+            return true;
+        });
+
+    }
+
+});
+</script>
 {% endblock %}

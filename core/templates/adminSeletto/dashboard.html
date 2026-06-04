@@ -52,7 +52,8 @@ Painel Seletto
 
             <!-- CHAMAR PRÓXIMA -->
             <div class="col-12">
-                <button type="submit"
+                <button id="btn-chamar"
+                type="submit"
                         form="chamarForm"
                         class="py-3 rounded-4 h-100 text-black border-0 w-100"
                         style="background-color: white;">
@@ -83,29 +84,64 @@ Painel Seletto
 
 </div>
 
+
 <!-- CONFIRMAÇÕES JS -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ==========================
+    // CONFIRMAÇÃO DE PULAR
+    // ==========================
     const pularForm = document.getElementById('pularForm');
+
     if (pularForm) {
         pularForm.addEventListener('submit', function (e) {
+
             if (!confirm('Tem certeza que deseja pular esta senha?')) {
                 e.preventDefault();
             }
+
         });
     }
 
+    // ==========================
+    // FORMULÁRIO CHAMAR PRÓXIMA
+    // ==========================
     const chamarForm = document.getElementById('chamarForm');
-    if (chamarForm) {
+    const btnChamar = document.getElementById('btn-chamar');
+
+    if (chamarForm && btnChamar) {
+
+        const textoOriginal = btnChamar.innerHTML;
+
         chamarForm.addEventListener('submit', function (e) {
+
             const input = document.getElementById('atendente');
 
             if (!input.value.trim()) {
                 e.preventDefault();
                 alert('Digite o nome do atendente.');
+                return;
             }
+
+            btnChamar.disabled = true;
+
+            btnChamar.innerHTML = `
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    <p class="fs-5 mb-0">Aguarde...</p>
+                </div>
+            `;
         });
+
+        // Safari / histórico do navegador
+        window.addEventListener('pageshow', function () {
+
+            btnChamar.disabled = false;
+            btnChamar.innerHTML = textoOriginal;
+
+        });
+
     }
 
 });
