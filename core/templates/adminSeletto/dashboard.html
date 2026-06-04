@@ -52,7 +52,8 @@ Painel Seletto
 
             <!-- CHAMAR PRÓXIMA -->
             <div class="col-12">
-                <button type="submit"
+                <button id="btn-chamar"
+                type="submit"
                         form="chamarForm"
                         class="py-3 rounded-4 h-100 text-black border-0 w-100"
                         style="background-color: white;">
@@ -104,11 +105,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ==========================
-    // VALIDAÇÃO DO ATENDENTE
+    // FORMULÁRIO CHAMAR PRÓXIMA
     // ==========================
     const chamarForm = document.getElementById('chamarForm');
+    const btnChamar = document.getElementById('btn-chamar');
 
-    if (chamarForm) {
+    if (chamarForm && btnChamar) {
+
+        const textoOriginal = btnChamar.innerHTML;
+
         chamarForm.addEventListener('submit', function (e) {
 
             const input = document.getElementById('atendente');
@@ -116,35 +121,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!input.value.trim()) {
                 e.preventDefault();
                 alert('Digite o nome do atendente.');
-            }
-
-        });
-    }
-
-    // ==========================
-    // BOTÃO CHAMAR PRÓXIMA
-    // ==========================
-    const btnChamar = document.getElementById('btn-chamar');
-
-    if (btnChamar) {
-
-        const textoOriginal = btnChamar.innerHTML;
-        let carregando = false;
-
-        // Antes de enviar a requisição HTMX
-        document.body.addEventListener('htmx:beforeRequest', function (evt) {
-
-            if (evt.detail.elt.id !== 'btn-chamar') {
                 return;
             }
-
-            const input = document.getElementById('atendente');
-
-            if (!input.value.trim()) {
-                return;
-            }
-
-            carregando = true;
 
             btnChamar.disabled = true;
 
@@ -156,40 +134,14 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
         });
 
-        // Sucesso
-        document.body.addEventListener('htmx:afterRequest', function (evt) {
-
-            if (evt.detail.elt.id !== 'btn-chamar') {
-                return;
-            }
-
-            carregando = false;
-
-            btnChamar.disabled = false;
-            btnChamar.innerHTML = textoOriginal;
-        });
-
-        // Erro
-        document.body.addEventListener('htmx:responseError', function (evt) {
-
-            if (evt.detail.elt.id !== 'btn-chamar') {
-                return;
-            }
-
-            carregando = false;
-
-            btnChamar.disabled = false;
-            btnChamar.innerHTML = textoOriginal;
-        });
-
         // Safari / histórico do navegador
         window.addEventListener('pageshow', function () {
 
-            carregando = false;
-
             btnChamar.disabled = false;
             btnChamar.innerHTML = textoOriginal;
+
         });
+
     }
 
 });
