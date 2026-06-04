@@ -942,7 +942,7 @@ def excluir_atendido(request, senha_id):
 
     return redirect('atendidos')
 
-@method_decorator(role_required('admin', 'gerente'), name='dispatch')
+@method_decorator(role_required('admin'), name='dispatch')
 class CriaratendenteView(FormView):
 
     def post(self, request):
