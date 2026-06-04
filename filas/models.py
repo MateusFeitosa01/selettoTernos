@@ -48,6 +48,8 @@ class Senha(models.Model):
         ('CANCELADA', 'Cancelada'),
     )
     
+    
+    
     codigo = models.CharField(max_length=20,  db_index=True)
 
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)

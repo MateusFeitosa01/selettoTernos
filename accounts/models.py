@@ -24,3 +24,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+class Funcionario(models.Model):
+    nome = models.CharField(
+        max_length=100,
+    )
+
+    ativo = models.BooleanField(default=True)
+
+    def str(self):
+        return self.nome

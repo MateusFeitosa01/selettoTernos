@@ -16,6 +16,7 @@ import qrcode
 from io import BytesIO
 from django.http import HttpResponse
 from accounts.decorators import role_required
+from django.core.cache import cache
 import logging 
 
 
@@ -515,6 +516,19 @@ class DadosClienteView(FormView):
                     categoria.save()
 
                     codigo = f'{categoria.prefixo}{categoria.contador_atual:03d}'
+
+                    telefone = form.cleaned_data['whatsapp']
+
+                    chave = f"senha_lock_{telefone}"
+
+                    if cache.get(chave):
+                        messages.warning(
+                            self.request,
+                            'Aguarde alguns segundos antes de solicitar outra senha.'
+                        )
+                        return self.form_invalid(form)
+
+                    cache.set(chave, True, timeout=10)
 
                     senha = Senha.objects.create(
                         codigo=codigo,
