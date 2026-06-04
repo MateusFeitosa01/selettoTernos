@@ -35,15 +35,18 @@ Painel Seletto
             {% csrf_token %}
 
             <div class="d-flex flex-column gap-1 mb-3">
-                <label for="atendente" class="fs-5">Nome do atendente</label>
+                <label for="atendente" class="fs-5">Funcionário</label>
 
-                <input type="text"
-                       name="atendente"
-                       id="atendente"
-                       placeholder="Digite o nome..."
-                       class="rounded-4 px-3 fs-4 p-2 text-white"
-                       style="background-color: rgb(38, 38, 38); border: none;"
-                       required>
+                <select name="atendente"
+                        id="atendente"
+                        class="rounded-4 px-3 fs-4 p-2 text-white"
+                        style="background-color: rgb(38, 38, 38); border: none;"
+                        required>
+                    <option value="" disabled selected>Selecione um funcionário</option>
+                    {% for funcionario in funcionarios %}
+                        <option value="{{ funcionario.id }}">{{ funcionario.username }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </form>
 
@@ -118,9 +121,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const input = document.getElementById('atendente');
 
-            if (!input.value.trim()) {
+            if (!input.value) {
                 e.preventDefault();
-                alert('Digite o nome do atendente.');
+                alert('Selecione um funcionário.');
                 return;
             }
 

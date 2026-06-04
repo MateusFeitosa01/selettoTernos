@@ -12,58 +12,39 @@ from atendimentos.models import Atendimento
 from .forms import ClienteForm
 from django.views import View
 from django.shortcuts import redirect, render
-import qrcode
+from django.utils.text import slugify
 from io import BytesIO
+from accounts.models import User
 from django.http import HttpResponse
 from accounts.decorators import role_required
-from accounts.models import Funcionario
 from django.core.cache import cache
+from .utils import chamar_proxima_senha
 import logging 
+import qrcode
 
 
 
 logger = logging.getLogger(__name__)
 
-def chamar_proxima_senha(request):
-    funcionarios_ocupados = Senha.objects.filter(   
-        status='EM_ATENDIMENTO'
-    ).values_list('atendente', flat=True)
-
-    funcionario = Funcionario.objects.filter(
-        ativo=True
-    ).exclude(
-        nome__in=funcionarios_ocupados
-
-    ).first()
-
-    if not funcionario:
-        return
-    
-    senha = senha = Senha.objects.filter(
-        status='AGUARDANDO'
-    ).order_by(
-        '-categoria__peso',
-        'criada_em'
-    ).first()
-
-    if not senha:
-        return
-    
-    senha.status = 'EM_ATENDIMENTO'
-    senha.atendente = funcionario.nome
-    senha.chamada_em = timezone.now()
-    senha.save()
-
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class ChamarProximaView(View):
     def post(self, request):
 
-        atendente = request.POST.get('atendente', '').strip()
+        funcionario_id = request.POST.get('atendente')
 
-        if not atendente:
-            messages.error(request, 'Informe o nome do atendente.')
+        if not funcionario_id:
+            messages.error(request, 'Selecione um funcionário para o atendimento.')
             return redirect('adminSeletto')
 
+        try:
+            funcionario = User.objects.get(
+                id=funcionario_id,
+                tipo_usuario='funcionario',
+                is_active=True
+            )
+        except User.DoesNotExist:
+            messages.error(request, 'Funcionário inválido.')
+            return redirect('adminSeletto')
 
         with transaction.atomic():
             # pega próxima senha
@@ -80,13 +61,14 @@ class ChamarProximaView(View):
 
             # atualiza senha atual
             senha.status = 'EM_ATENDIMENTO'
-            senha.atendente = atendente
+            senha.atendente = funcionario.first_name
             senha.chamada_em = timezone.now()
             senha.save()
 
             Atendimento.objects.create(
                 senha=senha,
-                atendente=request.user
+                atendente=funcionario,
+                ativo=True
             )
 
         return redirect('adminSeletto')
@@ -269,8 +251,6 @@ class FinalizarSenhaView(View):
         senha_atual.finalizado_em = timezone.now()
         senha_atual.save()
 
-        chamar_proxima_senha()
-
         Atendimento.objects.filter(
             senha=senha_atual,
             ativo=True
@@ -278,6 +258,8 @@ class FinalizarSenhaView(View):
             finalizado_em=timezone.now(),
             ativo=False
         )
+
+        chamar_proxima_senha()
 
         return redirect('adminSeletto')
 
@@ -448,7 +430,7 @@ class AdminSelettoView(TemplateView):
             'atendidos': atendidos,
             'senha_atual': senha_atual,
             'fila': fila,
-            'funcionarios': Funcionario.objects.filter(ativo=True).order_by('nome'),
+                'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).order_by('first_name', 'username'),
         })
 
         return context
@@ -516,19 +498,6 @@ class DadosClienteView(FormView):
             ativa=True
         ).first()
 
-        chave = f"token:{form.cleaned_data['whatsapp']}:{categoria.id}"
-
-        if cache.get(chave):
-
-            messages.error(
-                self.request,
-                "aguarde alguns segundos antes de solicitar outra senha"
-
-            )
-            return self.form_invalid(form)
-        
-        cache.set(chave, True, timeout=10)
-
         if not categoria:
 
             messages.error(
@@ -537,6 +506,18 @@ class DadosClienteView(FormView):
             )
 
             return self.form_invalid(form)
+
+        telefone = form.cleaned_data['whatsapp']
+        chave = f"senha_lock_{telefone}"
+
+        if cache.get(chave):
+            messages.warning(
+                self.request,
+                'Aguarde alguns segundos antes de solicitar outra senha.'
+            )
+            return self.form_invalid(form)
+
+        cache.set(chave, True, timeout=10)
 
         prefixo = categoria.prefixo
 
@@ -564,19 +545,6 @@ class DadosClienteView(FormView):
 
                     codigo = f'{categoria.prefixo}{categoria.contador_atual:03d}'
 
-                    telefone = form.cleaned_data['whatsapp']
-
-                    chave = f"senha_lock_{telefone}"
-
-                    if cache.get(chave):
-                        messages.warning(
-                            self.request,
-                            'Aguarde alguns segundos antes de solicitar outra senha.'
-                        )
-                        return self.form_invalid(form)
-
-                    cache.set(chave, True, timeout=10)
-
                     senha = Senha.objects.create(
                         codigo=codigo,
                         cliente_nome=form.cleaned_data['nome'],
@@ -585,7 +553,6 @@ class DadosClienteView(FormView):
                         fila=categoria.fila,
                         categoria=categoria,
                     )
-                    chamar_proxima_senha()
                 break
 
             except IntegrityError:
@@ -993,8 +960,14 @@ class CriaratendenteView(FormView):
 
             return redirect('adminSeletto')
         
-        Funcionario.objects.create(
-            nome= nome,
+        # Criar usuário do tipo 'funcionario' em vez do model Funcionario
+        username = slugify(nome) or nome.replace(' ', '').lower()
+        username = f"{username}-{int(timezone.now().timestamp())}"
+        User.objects.create(
+            username=username,
+            first_name=nome,
+            tipo_usuario='funcionario',
+            is_active=True,
         )
 
         messages.success(

@@ -6,10 +6,10 @@ Atendidos
 
 {% block content %}
 
-<div class="pt-4 text-white" style="padding: 0 8em;">
+<div class="pt-4 text-white px-4 px-xl-5">
 
     <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
 
         <div>
             <h1>Atendimentos Finalizados</h1>
@@ -19,39 +19,35 @@ Atendidos
             </p>
         </div>
 
-        <a href="{% url 'adminSeletto' %}"
-           class="btn btn-light rounded-4 px-4">
-            Voltar
-        </a>
+        <div class="d-flex gap-3 flex-wrap">
+            <button type="button"
+                    class="btn btn-light rounded-4 px-4"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCadastrarFuncionario">
+                Cadastrar funcionário
+            </button>
 
+            <a href="{% url 'adminSeletto' %}"
+               class="btn btn-light rounded-4 px-4">
+                Voltar
+            </a>
+        </div>
     </div>
 
-    <!-- FILTROS -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 align-items-center mb-4">
 
-        <!-- PESQUISA -->
-        <div class="col-md-3">
-            
+        <div class="col-12 col-lg-5">
             <input type="text"
-                id="pesquisaAtendidos"
-                placeholder="Pesquisar por nome, telefone, email ou senha..."
-                class="form-control rounded-4 py-3 px-4 border-0 text-white"
-                style="
-                        background-color: rgb(23,23,23);
-                        font-size: 1rem;
-                ">
-
+                   id="pesquisaAtendidos"
+                   placeholder="Pesquisar por nome, telefone, email ou senha..."
+                   class="form-control rounded-4 py-3 px-4 border-0 text-white"
+                   style="background-color: rgb(23,23,23); font-size: 1rem;">
         </div>
 
-        <!-- FILTRO TIPO -->
-        <div class="col-md-3">
-
+        <div class="col-12 col-md-4 col-lg-2">
             <select id="filtroCategoria"
                     class="form-select rounded-4 py-3 px-4 border-0 text-white"
-                    style="
-                        background-color: rgb(23,23,23);
-                        font-size: 1rem;
-                    ">
+                    style="background-color: rgb(23,23,23); font-size: 1rem;">
 
                 <option value="">
                     Tipo de senha
@@ -68,45 +64,26 @@ Atendidos
                 {% endfor %}
 
             </select>
-
         </div>
 
-        <!-- FILTRO DATA -->
-        <div class="col-md-3">
-
+        <div class="col-12 col-md-4 col-lg-3">
             <div class="position-relative">
 
                 <i class="bi bi-calendar-event position-absolute"
-                style="
-                        left: 18px;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        z-index: 10;
-                        color: rgb(180,180,180);
-                "></i>
+                   style="left: 18px; top: 50%; transform: translateY(-50%); z-index: 10; color: rgb(180,180,180);"></i>
 
                 <input type="date"
-                    id="filtroData"
-                    class="form-control rounded-4 py-3 ps-5 pe-4 border-0 text-white"
-                    style="
-                            background-color: rgb(23,23,23);
-                            font-size: 1rem;
-                            color-scheme: dark;
-                    ">
+                       id="filtroData"
+                       class="form-control rounded-4 py-3 ps-5 pe-4 border-0 text-white"
+                       style="background-color: rgb(23,23,23); font-size: 1rem; color-scheme: dark;">
 
             </div>
-
         </div>
 
-        <!-- FILTRO STATUS DA VENDA -->
-        <div class="col-md-3">
-
+        <div class="col-12 col-md-4 col-lg-2">
             <select id="filtroVenda"
                     class="form-select rounded-4 py-3 px-4 border-0 text-white"
-                    style="
-                        background-color: rgb(23,23,23);
-                        font-size: 1rem;
-                    ">
+                    style="background-color: rgb(23,23,23); font-size: 1rem;">
 
                 <option value="">
                     Status da venda
@@ -121,10 +98,10 @@ Atendidos
                 </option>
 
             </select>
-
         </div>
 
     </div>
+
     {% if atendidos %}
 
         <div class="d-flex flex-column gap-3">
@@ -473,6 +450,31 @@ Atendidos
 
     {% endif %}
 
+</div>
+
+<!-- Modal de cadastro de funcionário -->
+<div class="modal fade" id="modalCadastrarFuncionario" tabindex="-1" aria-labelledby="modalCadastrarFuncionarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark border-0">
+      <div class="modal-header" style="border-bottom: 1px solid rgb(50, 50, 50);">
+        <h5 class="modal-title text-white" id="modalCadastrarFuncionarioLabel">Cadastrar funcionário</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <form action="{% url 'criar_funcionario' %}" method="post">
+        {% csrf_token %}
+        <div class="modal-body text-white">
+          <div class="mb-3">
+            <label for="funcionarioNome" class="form-label">Nome do funcionário</label>
+            <input type="text" class="form-control" id="funcionarioNome" name="nome" placeholder="Digite o nome" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid rgb(50, 50, 50);">
+          <button type="button" class="btn btn-secondary rounded-4 px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary rounded-4 px-4">Cadastrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
