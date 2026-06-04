@@ -16,12 +16,43 @@ import qrcode
 from io import BytesIO
 from django.http import HttpResponse
 from accounts.decorators import role_required
+from accounts.models import Funcionario
 from django.core.cache import cache
 import logging 
 
 
 
 logger = logging.getLogger(__name__)
+
+def chamar_proxima_senha(request):
+    funcionarios_ocupados = Senha.objects.filter(   
+        status='EM_ATENDIMENTO'
+    ).values_list('atendente', flat=True)
+
+    funcionario = Funcionario.objects.filter(
+        ativo=True
+    ).exclude(
+        nome__in=funcionarios_ocupados
+
+    ).first()
+
+    if not funcionario:
+        return
+    
+    senha = senha = Senha.objects.filter(
+        status='AGUARDANDO'
+    ).order_by(
+        '-categoria__peso',
+        'criada_em'
+    ).first()
+
+    if not senha:
+        return
+    
+    senha.status = 'EM_ATENDIMENTO'
+    senha.atendente = funcionario.nome
+    senha.chamada_em = timezone.now()
+    senha.save()
 
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class ChamarProximaView(View):
@@ -238,6 +269,8 @@ class FinalizarSenhaView(View):
         senha_atual.finalizado_em = timezone.now()
         senha_atual.save()
 
+        chamar_proxima_senha()
+
         Atendimento.objects.filter(
             senha=senha_atual,
             ativo=True
@@ -415,6 +448,7 @@ class AdminSelettoView(TemplateView):
             'atendidos': atendidos,
             'senha_atual': senha_atual,
             'fila': fila,
+            'funcionarios': Funcionario.objects.filter(ativo=True).order_by('nome'),
         })
 
         return context
@@ -482,6 +516,19 @@ class DadosClienteView(FormView):
             ativa=True
         ).first()
 
+        chave = f"token:{form.cleaned_data['whatsapp']}:{categoria.id}"
+
+        if cache.get(chave):
+
+            messages.error(
+                self.request,
+                "aguarde alguns segundos antes de solicitar outra senha"
+
+            )
+            return self.form_invalid(form)
+        
+        cache.set(chave, True, timeout=10)
+
         if not categoria:
 
             messages.error(
@@ -538,6 +585,7 @@ class DadosClienteView(FormView):
                         fila=categoria.fila,
                         categoria=categoria,
                     )
+                    chamar_proxima_senha()
                 break
 
             except IntegrityError:
@@ -926,3 +974,31 @@ def excluir_atendido(request, senha_id):
         )
 
     return redirect('atendidos')
+
+@method_decorator(role_required('admin', 'gerente'), name='dispatch')
+class CriaratendenteView(FormView):
+
+    def post(self, request):
+
+        nome = request.POST.get(
+            'nome',
+            ''
+        ).strip()
+
+        if not nome:
+            messages.error(
+                request,
+                'Nome do atendente é obrigatório.'
+            )
+
+            return redirect('adminSeletto')
+        
+        Funcionario.objects.create(
+            nome= nome,
+        )
+
+        messages.success(
+            request,
+            f'Atendente {nome} criado com sucesso.'
+        )
+        return redirect('adminSeletto')
