@@ -153,6 +153,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    // ==========================
+    // AUTO-CHAMADA AUTOMÁTICA
+    // ==========================
+    setInterval(function () {
+        fetch('{% url "auto_chamar_proxima" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                'Content-Type': 'application/json'
+            }
+        }).catch(err => console.log('Auto-call executado'));
+    }, 5000); // A cada 5 segundos
+
 });
 </script>
 
