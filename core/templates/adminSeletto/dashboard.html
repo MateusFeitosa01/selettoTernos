@@ -50,7 +50,7 @@ Painel Seletto
                         required>
                     <option value="" disabled selected>Selecione um funcionário</option>
                     {% for funcionario in funcionarios %}
-                        <option value="{{ funcionario.id }}">{{ funcionario.username }}</option>
+                        <option value="{{ funcionario.id }}">{{ funcionario.first_name }}</option>
                     {% endfor %}
                 </select>
             </div>
