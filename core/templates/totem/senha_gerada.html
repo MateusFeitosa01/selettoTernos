@@ -27,14 +27,14 @@ Preencha seus dados
             </div>
             <div class="d-flex flex-column align-items-center mt-4">
                 
-                <div class="text-center">
+                <div class="text-center d-flex flex-column align-items-center">
                     <p class="text-white mb-2">Escaneie para acompanhar sua posição</p>
 
                     <img
                         src="{% url 'gerar_qr' %}?token={{ token }}"
                         alt="QR Code"
                         class="img-fluid"
-                        style="max-width: 250px; display: block;"
+                        style="width: 320px; max-width: 100%; display: block;"
                     >
                 </div>
 
