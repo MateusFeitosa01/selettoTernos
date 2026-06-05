@@ -25,23 +25,26 @@ Preencha seus dados
                     </p>
                 {% endif %}
             </div>
-            <div class="d-grid gap-3 mt-4 flex ">
+            <div class="d-flex flex-column align-items-center mt-4">
+                
                 <div class="text-center">
                     <p class="text-white mb-2">Escaneie para acompanhar sua posição</p>
+
                     <img
                         src="{% url 'gerar_qr' %}?token={{ token }}"
                         alt="QR Code"
                         class="img-fluid"
-                        
+                        style="max-width: 250px; display: block;"
                     >
                 </div>
 
                 <a href="{% url 'totem' %}"
                 id="btn-nova-senha"
-                class="btn btn-dark rounded-4 text-white"
+                class="btn btn-dark rounded-4 text-white mt-3"
                 style="padding: 16px 24px; font-size: 1.2rem;">
                     Retirar Nova Senha
                 </a>
+
             </div>
         </div>
 </div>
