@@ -2,6 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.core.cache import cache
 import logging
+from decouple import config
 
 from accounts.models import User
 from filas.models import Senha
@@ -12,8 +13,14 @@ logger = logging.getLogger(__name__)
 
 def chamar_proxima_senha():
 
-    # Consulta todos os funcionários ativos em ordem previsível
-    todos_funcionarios = list(User.objects.filter(tipo_usuario='funcionario', is_active=True).order_by('first_name', 'username'))
+    default_funcionario_username = config('FUNC_USER', default='funcionario')
+
+    # Consulta todos os funcionários ativos em ordem previsível, excluindo o placeholder de sistema
+    todos_funcionarios = list(
+        User.objects.filter(tipo_usuario='funcionario', is_active=True)
+        .exclude(username=default_funcionario_username)
+        .order_by('first_name', 'username')
+    )
 
     if not todos_funcionarios:
         logger.info('Nenhum funcionário cadastrado para chamar a próxima senha.')
@@ -22,6 +29,7 @@ def chamar_proxima_senha():
     # Funcionários livres (não têm atendimento ativo)
     funcionarios_livres = list(
         User.objects.filter(tipo_usuario='funcionario', is_active=True)
+        .exclude(username=default_funcionario_username)
         .exclude(atendimentos__ativo=True)
         .order_by('first_name', 'username')
         .distinct()
@@ -35,6 +43,7 @@ def chamar_proxima_senha():
     if len(funcionarios_livres) == 1:
         funcionario_livre = funcionarios_livres[0]
 
+    # Quando mais de um está livre, usar round-robin diário com fallback para o próximo livre
     else:
         cache_key = 'chamar_proxima_last_funcionario'
         data = cache.get(cache_key, {}) or {}
