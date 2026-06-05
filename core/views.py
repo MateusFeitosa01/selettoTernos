@@ -16,7 +16,7 @@ from django.utils.text import slugify
 from decouple import config
 from io import BytesIO
 from accounts.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from accounts.decorators import role_required
 from django.core.cache import cache
 from .utils import chamar_proxima_senha
@@ -26,6 +26,18 @@ import qrcode
 
 
 logger = logging.getLogger(__name__)
+
+class AutoChamarProximaSenhaView(View):
+    """View AJAX para auto-chamada automática de senhas"""
+    
+    def post(self, request):
+        """Chama próxima senha automaticamente via round-robin"""
+        try:
+            chamar_proxima_senha()
+            return JsonResponse({'status': 'success', 'message': 'Chamada automática executada'})
+        except Exception as e:
+            logger.error(f'Erro em auto-call: {str(e)}')
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class ChamarProximaView(View):
@@ -157,6 +169,7 @@ class PularSenhaView(View):
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class FinalizarSenhaView(View):
     def post(self, request):
+        logger.info('FinalizarSenhaView POST called by user id=%s', getattr(request.user, 'id', None))
         senha_id = request.POST.get('senha_id')
         com_observacoes = request.POST.get('com_observacoes')
         
@@ -260,7 +273,15 @@ class FinalizarSenhaView(View):
             ativo=False
         )
 
+        # log estado antes da chamada automática
+        logger.info('Antes de chamar_proxima_senha: senhas aguardando=%s, funcionarios livres=%s',
+                    Senha.objects.filter(status='AGUARDANDO').count(),
+                    User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(atendimentos__ativo=True).count())
+
         chamar_proxima_senha()
+
+        # log estado depois
+        logger.info('Depois de chamar_proxima_senha: senhas em atendimento=%s', Senha.objects.filter(status='EM_ATENDIMENTO').count())
 
         return redirect('adminSeletto')
 
@@ -306,6 +327,15 @@ class VoltarFilaView(View):
         senha.atendente = None
         senha.chamada_em = None
         senha.finalizado_em = None
+
+        # Encerra o atendimento ativo associado a essa senha
+        Atendimento.objects.filter(
+            senha=senha,
+            ativo=True
+        ).update(
+            finalizado_em=timezone.now(),
+            ativo=False
+        )
 
         # coloca em terceiro
         if len(fila) >= 3:
@@ -433,7 +463,7 @@ class AdminSelettoView(TemplateView):
             'atendidos': atendidos,
             'senha_atual': senha_atual,
             'fila': fila,
-            'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(username=default_funcionario_username).order_by('first_name', 'username'),
+            'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(username=default_funcionario_username).exclude(atendimentos__ativo=True).order_by('first_name', 'username').distinct(),
             'funcionarios_inativos': User.objects.filter(tipo_usuario='funcionario', is_active=False).exclude(username=default_funcionario_username).order_by('first_name', 'username'),
         })
 

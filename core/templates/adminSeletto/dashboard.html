@@ -50,7 +50,7 @@ Painel Seletto
                         required>
                     <option value="" disabled selected>Selecione um funcionário</option>
                     {% for funcionario in funcionarios %}
-                        <option value="{{ funcionario.id }}">{{ funcionario.username }}</option>
+                        <option value="{{ funcionario.id }}">{{ funcionario.first_name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -152,6 +152,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+
+    // ==========================
+    // AUTO-CHAMADA AUTOMÁTICA
+    // ==========================
+    setInterval(function () {
+        fetch('{% url "auto_chamar_proxima" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                'Content-Type': 'application/json'
+            }
+        }).catch(err => console.log('Auto-call executado'));
+    }, 5000); // A cada 5 segundos
 
 });
 </script>
