@@ -1,0 +1,85 @@
+<button type="button"
+        class="btn btn-light rounded-4 px-4"
+        data-bs-toggle="modal"
+        data-bs-target="#modalCadastrarFuncionario">
+    Cadastrar funcionário
+</button>
+
+<div class="modal fade" id="modalCadastrarFuncionario" tabindex="-1" aria-labelledby="modalCadastrarFuncionarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="background-color: rgb(23, 23, 23); border: none;">
+      <div class="modal-header" style="border-bottom: 1px solid rgb(50, 50, 50);">
+        <h5 class="modal-title text-white" id="modalCadastrarFuncionarioLabel">Gerenciar funcionários</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body text-white">
+        <div class="row g-4">
+          <div class="col-12 col-lg-5">
+            <div class="bg-dark border border-secondary rounded-4 p-4 h-100">
+              <h5 class="mb-4">Cadastrar novo funcionário</h5>
+              <form action="{% url 'criar_funcionario' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="funcionarioNome" class="form-label text-white">Nome do funcionário</label>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="funcionarioNome" name="nome" placeholder="Digite o nome" style="background-color: rgb(38, 38, 38);" required>
+                </div>
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                  <button type="button" class="btn btn-outline-light rounded-4 px-4" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-light rounded-4 px-4">Cadastrar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col-12 col-lg-7">
+            <div class="bg-dark border border-secondary rounded-4 p-4 h-100">
+              <h5 class="mb-3">Funcionários ativos</h5>
+              {% if funcionarios %}
+                <div class="list-group list-group-flush">
+                  {% for funcionario in funcionarios %}
+                    <div class="list-group-item bg-dark border-secondary px-0 py-3 d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ funcionario.first_name }}</strong>
+                        <div class="small text-secondary">{{ funcionario.username }}</div>
+                      </div>
+                      <form action="{% url 'excluir_atendente' funcionario.id %}" method="post" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light rounded-4 px-3">Excluir</button>
+                      </form>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-secondary mb-0">Nenhum funcionário ativo encontrado.</p>
+              {% endif %}
+
+              <hr class="my-4" style="border-color: rgb(50, 50, 50);">
+
+              <h5 class="mb-3">Funcionários inativos</h5>
+              {% if funcionarios_inativos %}
+                <div class="list-group list-group-flush">
+                  {% for funcionario in funcionarios_inativos %}
+                    <div class="list-group-item bg-dark border-secondary px-0 py-3 d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ funcionario.first_name }}</strong>
+                        <div class="small text-secondary">{{ funcionario.username }}</div>
+                      </div>
+                      <form action="{% url 'reativar_atendente' funcionario.id %}" method="post" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light rounded-4 px-3">Reativar</button>
+                      </form>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-secondary mb-0">Nenhum funcionário inativo encontrado.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid rgb(50, 50, 50);">
+        <button type="button" class="btn btn-outline-light rounded-4 px-4" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>

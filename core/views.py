@@ -13,6 +13,7 @@ from .forms import ClienteForm
 from django.views import View
 from django.shortcuts import redirect, render
 from django.utils.text import slugify
+from decouple import config
 from io import BytesIO
 from accounts.models import User
 from django.http import HttpResponse
@@ -424,13 +425,16 @@ class AdminSelettoView(TemplateView):
             'criada_em'
         )
 
+        default_funcionario_username = config('FUNC_USER', default='funcionario')
+
         context.update({
             'aguardando': aguardando,
             'em_atendimento': em_atendimento,
             'atendidos': atendidos,
             'senha_atual': senha_atual,
             'fila': fila,
-                'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).order_by('first_name', 'username'),
+            'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(username=default_funcionario_username).order_by('first_name', 'username'),
+            'funcionarios_inativos': User.objects.filter(tipo_usuario='funcionario', is_active=False).exclude(username=default_funcionario_username).order_by('first_name', 'username'),
         })
 
         return context
@@ -975,3 +979,61 @@ class CriaratendenteView(FormView):
             f'Atendente {nome} criado com sucesso.'
         )
         return redirect('adminSeletto')
+@method_decorator(role_required('admin'), name='dispatch')
+class ExcluirAtendenteView(View):
+
+    def post(self, request, atendente_id):
+
+        try:
+            atendente = User.objects.get(
+                id=atendente_id,
+                tipo_usuario='funcionario',
+                is_active=True
+            )
+
+            atendente.is_active = False
+            atendente.save()
+
+            messages.success(
+                request,
+                f'Atendente {atendente.first_name} excluído com sucesso.'
+            )
+
+        except User.DoesNotExist:
+
+            messages.warning(
+                request,
+                'Atendente não encontrado.'
+            )
+
+        return redirect('adminSeletto')
+    
+@method_decorator(role_required('admin'), name='dispatch')
+class ReativarAtendenteView(View):
+
+    def post(self, request, atendente_id):
+
+        try:
+            atendente = User.objects.get(
+                id=atendente_id,
+                tipo_usuario='funcionario',
+                is_active=False
+            )
+
+            atendente.is_active = True
+            atendente.save()
+
+            messages.success(
+                request,
+                f'Atendente {atendente.first_name} reativado com sucesso.'
+            )
+
+        except User.DoesNotExist:
+
+            messages.warning(
+                request,
+                'Atendente não encontrado ou já ativo.'
+            )
+
+        return redirect('adminSeletto')
+    

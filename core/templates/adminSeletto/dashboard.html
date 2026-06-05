@@ -9,12 +9,18 @@ Painel Seletto
 <div class="pt-4 text-white" style="padding: 0 8em;">
 
     <!-- HEADER -->
-    <div class="d-flex align-items-center gap-4 my-4">
-        <img src="{% static 'img/logo.png' %}" alt="Seletto" class="img-fluid mb-3" style="width: 100px;">
-        <div class="d-flex flex-column align-self-stretch justify-content-center">
-            <h1>Painel de Atendimento</h1>
-            <h5>Gerenciamento de Senhas</h5>
+    <div class="d-flex align-items-center gap-4 my-4 justify-content-between">
+        <div class="d-flex align-items-center gap-4">
+            <img src="{% static 'img/logo.png' %}" alt="Seletto" class="img-fluid mb-3" style="width: 100px;">
+            <div class="d-flex flex-column align-self-stretch justify-content-center">
+                <h1>Painel de Atendimento</h1>
+                <h5>Gerenciamento de Senhas</h5>
+            </div>
         </div>
+
+        {% if request.user.is_authenticated and request.user.tipo_usuario == 'admin' %}
+            {% include 'adminSeletto/cadastrar_funcionario.html' %}
+        {% endif %}
     </div>
 
     <!-- CARDS (HTMX) -->

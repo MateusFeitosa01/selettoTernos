@@ -22,6 +22,8 @@ from .views import (
     AtendidosView,
     excluir_atendido,
     CriaratendenteView,
+    ExcluirAtendenteView,
+    ReativarAtendenteView,
 )
 
 urlpatterns = [
@@ -151,5 +153,15 @@ urlpatterns = [
         'funcionarios/criar/',
         CriaratendenteView.as_view(),
         name='criar_funcionario'
+    ),
+    path(
+        'funcionarios/excluir/<int:atendente_id>/',
+        ExcluirAtendenteView.as_view(),
+        name='excluir_atendente'
+    ),
+    path(
+        'funcionarios/reativar/<int:atendente_id>/',
+        ReativarAtendenteView.as_view(),
+        name='reativar_atendente'
     ),
     ]

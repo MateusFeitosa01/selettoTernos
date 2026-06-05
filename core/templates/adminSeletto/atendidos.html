@@ -20,13 +20,6 @@ Atendidos
         </div>
 
         <div class="d-flex gap-3 flex-wrap">
-            <button type="button"
-                    class="btn btn-light rounded-4 px-4"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalCadastrarFuncionario">
-                Cadastrar funcionário
-            </button>
-
             <a href="{% url 'adminSeletto' %}"
                class="btn btn-light rounded-4 px-4">
                 Voltar
@@ -450,31 +443,6 @@ Atendidos
 
     {% endif %}
 
-</div>
-
-<!-- Modal de cadastro de funcionário -->
-<div class="modal fade" id="modalCadastrarFuncionario" tabindex="-1" aria-labelledby="modalCadastrarFuncionarioLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark border-0">
-      <div class="modal-header" style="border-bottom: 1px solid rgb(50, 50, 50);">
-        <h5 class="modal-title text-white" id="modalCadastrarFuncionarioLabel">Cadastrar funcionário</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <form action="{% url 'criar_funcionario' %}" method="post">
-        {% csrf_token %}
-        <div class="modal-body text-white">
-          <div class="mb-3">
-            <label for="funcionarioNome" class="form-label">Nome do funcionário</label>
-            <input type="text" class="form-control" id="funcionarioNome" name="nome" placeholder="Digite o nome" required>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top: 1px solid rgb(50, 50, 50);">
-          <button type="button" class="btn btn-secondary rounded-4 px-4" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary rounded-4 px-4">Cadastrar</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <script>
