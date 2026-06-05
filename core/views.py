@@ -316,6 +316,15 @@ class VoltarFilaView(View):
         senha.chamada_em = None
         senha.finalizado_em = None
 
+        # Encerra o atendimento ativo associado a essa senha
+        Atendimento.objects.filter(
+            senha=senha,
+            ativo=True
+        ).update(
+            finalizado_em=timezone.now(),
+            ativo=False
+        )
+
         # coloca em terceiro
         if len(fila) >= 3:
 
