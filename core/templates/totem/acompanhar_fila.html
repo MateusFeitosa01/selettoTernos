@@ -56,6 +56,18 @@ Acompanhar fila
                 {{ tipo }}
             </p>
 
+            {% if tipo_locacao %}
+                <p 
+                    class="text-secondary mt-2 mb-0"
+                    style="font-size: 1rem;"
+                >
+                    {% if tipo_locacao == 'locacao_noivo' %}Locação Noivo
+                    {% elif tipo_locacao == 'locacao_terno' %}Locação Terno
+                    {% elif tipo_locacao == 'locacao_infantil' %}Locação Infantil
+                    {% else %}{{ tipo_locacao }}{% endif %}
+                </p>
+            {% endif %}
+
         </div>
 
         <!-- Grid -->

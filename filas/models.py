@@ -107,6 +107,19 @@ class Senha(models.Model):
         null=True,
         blank=True
         )
+
+    TIPO_LOCACAO_CHOICES = (
+        ('locacao_noivo', 'Locação Noivo'),
+        ('locacao_terno', 'Locação Terno'),
+        ('locacao_infantil', 'Locação Infantil'),
+    )
+
+    tipo_locacao = models.CharField(
+        max_length=50,
+        choices=TIPO_LOCACAO_CHOICES,
+        null=True,
+        blank=True
+        )
     
     def __str__(self):
         return self.codigo

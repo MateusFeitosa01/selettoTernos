@@ -4,6 +4,13 @@ from filas.models import ObservacaoAtendimento
 
 
 class ClienteForm(forms.Form):
+    TIPO_LOCACAO_CHOICES = (
+        ('', 'Selecione uma opção'),
+        ('locacao_noivo', 'Locação Noivo'),
+        ('locacao_terno', 'Locação Terno'),
+        ('locacao_infantil', 'Locação Infantil'),
+    )
+
     nome = forms.CharField(
         max_length=100,
         min_length=2,
@@ -50,6 +57,16 @@ class ClienteForm(forms.Form):
             'min_length': 'O WhatsApp deve ter pelo menos 10 caracteres.',
             'max_length': 'O WhatsApp deve ter no máximo 20 caracteres.'
         }
+    )
+
+    tipo_locacao = forms.ChoiceField(
+        choices=TIPO_LOCACAO_CHOICES,
+        required=False,
+        label='Tipo de Locação',
+        widget=forms.Select(attrs={
+            'class': 'form-select form-control-lg rounded-4',
+            'style': 'background-color: rgb(38, 38, 38); border: none; color: white;'
+        })
     )
 
     def clean_nome(self):

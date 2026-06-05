@@ -549,6 +549,8 @@ class DadosClienteView(FormView):
 
                     codigo = f'{categoria.prefixo}{categoria.contador_atual:03d}'
 
+                    tipo_locacao = form.cleaned_data.get('tipo_locacao') or None
+
                     senha = Senha.objects.create(
                         codigo=codigo,
                         cliente_nome=form.cleaned_data['nome'],
@@ -556,6 +558,7 @@ class DadosClienteView(FormView):
                         cliente_telefone=form.cleaned_data['whatsapp'],
                         fila=categoria.fila,
                         categoria=categoria,
+                        tipo_locacao=tipo_locacao,
                     )
                 break
 
@@ -585,6 +588,7 @@ class DadosClienteView(FormView):
             'codigo': senha.codigo,
             'tipo': categoria.nome,
             'nome': senha.cliente_nome,
+            'tipo_locacao': tipo_locacao or '',
         }
 
         messages.success(
@@ -672,6 +676,7 @@ class AcompanharFilaView(TemplateView):
         context.update({
             'senha': senha.codigo,
             'tipo': senha.categoria.nome,
+            'tipo_locacao': senha.tipo_locacao or '',
             'posicao': posicao,
             'tempo_estimado': tempo_estimado,
             'token': senha.token,

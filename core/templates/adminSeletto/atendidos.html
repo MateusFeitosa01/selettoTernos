@@ -177,6 +177,15 @@ Atendidos
                                     {{ senha.categoria.nome }}
                                 </p>
 
+                                {% if senha.tipo_locacao and senha.categoria.nome|lower == 'locar terno' %}
+                                    <p class="mb-0 text-secondary" style="font-size: 0.85rem; margin-top: 4px;">
+                                        {% if senha.tipo_locacao == 'locacao_noivo' %}Locação Noivo
+                                        {% elif senha.tipo_locacao == 'locacao_terno' %}Locação Terno
+                                        {% elif senha.tipo_locacao == 'locacao_infantil' %}Locação Infantil
+                                        {% else %}{{ senha.tipo_locacao }}{% endif %}
+                                    </p>
+                                {% endif %}
+
                             </div>
 
                             <div class="col-md-2">
@@ -264,6 +273,23 @@ Atendidos
                             </p>
 
                         </div>
+
+                        {% if senha.tipo_locacao and senha.categoria.nome|lower == 'locar terno' %}
+                            <div class="col-md-4">
+
+                                <p class="text-white mb-1">
+                                    Tipo de Locação:
+                                </p>
+
+                                <p class="mb-0">
+                                    {% if senha.tipo_locacao == 'locacao_noivo' %}Locação Noivo
+                                    {% elif senha.tipo_locacao == 'locacao_terno' %}Locação Terno
+                                    {% elif senha.tipo_locacao == 'locacao_infantil' %}Locação Infantil
+                                    {% else %}{{ senha.tipo_locacao }}{% endif %}
+                                </p>
+
+                            </div>
+                        {% endif %}
 
                     </div>
 

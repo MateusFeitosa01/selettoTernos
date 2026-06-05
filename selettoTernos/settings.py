@@ -128,17 +128,26 @@ ASGI_APPLICATION = 'selettoTernos.asgi.application'
 # DATABASE
 # =========================================================
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config(
-            'DATABASE_URL',
-            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
-        ),
-        conn_max_age=0,
-        ssl_require=True
-    )
-}
+DATABASE_URL = config(
+    'DATABASE_URL',
+    default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+)
 
+if DATABASE_URL.startswith("postgres"):
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+            ssl_require=True
+        )
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0
+        )
+    }
 
 # =========================================================
 # PASSWORD VALIDATION

@@ -17,6 +17,14 @@ Preencha seus dados
             <div class="d-flex flex-column justify-content-center align-items-center bg-white text-black rounded-4" style="padding: 50px;">
                 <h1 style="font-size: 150px;">{{ codigo }}</h1>
                 <p style="font-size: 32px;" class="text-secondary">{{ tipo }}</p>
+                {% if tipo_locacao %}
+                    <p style="font-size: 18px;" class="text-secondary mt-2">
+                        {% if tipo_locacao == 'locacao_noivo' %}Locação Noivo
+                        {% elif tipo_locacao == 'locacao_terno' %}Locação Terno
+                        {% elif tipo_locacao == 'locacao_infantil' %}Locação Infantil
+                        {% else %}{{ tipo_locacao }}{% endif %}
+                    </p>
+                {% endif %}
             </div>
             <div class="d-grid gap-3 mt-4 flex ">
                 <div class="text-center">

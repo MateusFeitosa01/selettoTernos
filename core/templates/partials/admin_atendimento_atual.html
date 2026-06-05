@@ -88,6 +88,14 @@
                             <p class="mb-0">
                                 {{ senha_atual.categoria.nome }}
                             </p>
+                            {% if senha_atual.tipo_locacao and senha_atual.categoria.nome|lower == 'locar terno' %}
+                                <p class="mb-0 text-secondary" style="font-size: 0.9rem;">
+                                    {% if senha_atual.tipo_locacao == 'locacao_noivo' %}Locação Noivo
+                                    {% elif senha_atual.tipo_locacao == 'locacao_terno' %}Locação Terno
+                                    {% elif senha_atual.tipo_locacao == 'locacao_infantil' %}Locação Infantil
+                                    {% else %}{{ senha_atual.tipo_locacao }}{% endif %}
+                                </p>
+                            {% endif %}
                         </div>
 
                     </div>

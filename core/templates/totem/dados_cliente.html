@@ -88,6 +88,25 @@ Preencha seus dados
                         {% endif %}
                     </div>
 
+                    <!-- Tipo de Locação (aparece apenas para Prova Noivo) -->
+                    <div class="mb-4" id="tipo-locacao-field" style="display: none;">
+                        <label class="form-label text-white fs-5 d-flex align-items-center gap-2">
+                            Tipo de Locação
+                        </label>
+
+                        <select 
+                            name="tipo_locacao"
+                            id="tipo-locacao"
+                            class="form-select form-control-lg text-white border-0 rounded-4 px-4 py-3 input-campo"
+                            style="background-color: rgb(38, 38, 38);"
+                        >
+                            <option value="">Selecione uma opção</option>
+                            <option value="locacao_noivo">Locação Noivo</option>
+                            <option value="locacao_terno">Locação Terno</option>
+                            <option value="locacao_infantil">Locação Infantil</option>
+                        </select>
+                    </div>
+
                     <!-- Botão -->
                     <div class="d-grid gap-3 mt-4">
 
@@ -115,6 +134,29 @@ Preencha seus dados
     </div>
     <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ==========================
+    // MOSTRAR/ESCONDER LOCAÇÃO
+    // ==========================
+    const tipoMapeamento = {
+        'locar-terno': true,
+        'locar_terno': true,
+        'Locar Terno': true,
+    };
+
+    const tipoLocacaoField = document.getElementById('tipo-locacao-field');
+    const tipoLocacaoSelect = document.getElementById('tipo-locacao');
+    
+    // Extrair tipo da URL
+    const urlPath = window.location.pathname;
+    const tipoMatch = urlPath.match(/\/dados-cliente\/([^\/]+)/);
+    const tipoAtendimento = tipoMatch ? tipoMatch[1] : '';
+    
+    // Mostrar/esconder campo baseado no tipo de atendimento
+    if (tipoMapeamento[tipoAtendimento]) {
+        tipoLocacaoField.style.display = 'block';
+        tipoLocacaoSelect.required = true;
+    }
 
     // ==========================
     // MÁSCARA DE TELEFONE
