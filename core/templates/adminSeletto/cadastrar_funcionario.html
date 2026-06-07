@@ -15,13 +15,13 @@
       <div class="modal-body text-white">
         <div class="row g-4">
           <div class="col-12 col-lg-5">
-            <div class="bg-dark border border-secondary rounded-4 p-4 h-100">
+            <div class="border border-secondary rounded-4 p-4 h-100" style="background-color: rgb(38, 38, 38)">
               <h5 class="mb-4">Cadastrar novo funcionário</h5>
               <form action="{% url 'criar_funcionario' %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
                   <label for="funcionarioNome" class="form-label text-white">Nome do funcionário</label>
-                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="funcionarioNome" name="nome" placeholder="Digite o nome" style="background-color: rgb(38, 38, 38);" required>
+                  <input type="text" class="form-control rounded-4 py-3 px-4 border-0 text-white" id="funcionarioNome" name="nome" placeholder="Digite o nome" style="background-color: rgb(162, 162, 162);" required>
                 </div>
                 <div class="d-flex justify-content-end gap-3 mt-4">
                   <button type="button" class="btn btn-outline-light rounded-4 px-4" data-bs-dismiss="modal">Cancelar</button>
@@ -31,12 +31,14 @@
             </div>
           </div>
           <div class="col-12 col-lg-7">
-            <div class="bg-dark border border-secondary rounded-4 p-4 h-100">
+
+            <div class=" border border-secondary rounded-4 p-4 h-100" style="background-color: rgb(38, 38, 38)">
               <h5 class="mb-3">Funcionários ativos <span class="text-secondary">({{ funcionarios|length }})</span></h5>
+
               {% if funcionarios %}
                 <div class="list-group list-group-flush">
                   {% for funcionario in funcionarios %}
-                    <div class="list-group-item bg-dark border-secondary px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div class="list-group-item  border-secondary px-0 py-3 d-flex justify-content-between align-items-center" style="background-color: rgb(38, 38, 38)">
                       <div>
                         <strong>{{ funcionario.first_name|default:funcionario.username }}</strong>
                         {% if funcionario.first_name %}
@@ -60,7 +62,7 @@
               {% if funcionarios_inativos %}
                 <div class="list-group list-group-flush">
                   {% for funcionario in funcionarios_inativos %}
-                    <div class="list-group-item bg-dark border-secondary px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div class="list-group-item  border-secondary px-0 py-3 d-flex justify-content-between align-items-center" style="background-color: rgb(38, 38, 38)">
                       <div>
                         <strong>{{ funcionario.first_name|default:funcionario.username }}</strong>
                         {% if funcionario.first_name %}

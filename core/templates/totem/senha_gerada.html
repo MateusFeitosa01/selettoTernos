@@ -6,8 +6,7 @@ Preencha seus dados
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid bg-black py-2 d-flex flex-column justify-content-center align-items-center text-white"
-     style="min-height: 100dvh;">
+<div class="container-fluid bg-black py-2 d-flex flex-column justify-content-center align-items-center text-white">
         <div class="text-center mb-4">
           <img src="{% static 'img/logo.png' %}" alt="Seletto" width="150" class=" mx-auto mb-2" />
           <p class="fs-1 mb-1">Sua senha</p>
@@ -26,23 +25,26 @@ Preencha seus dados
                     </p>
                 {% endif %}
             </div>
-            <div class="d-grid gap-3 mt-4 flex ">
-                <div class="text-center">
+            <div class="d-flex flex-column align-items-center mt-4">
+                
+                <div class="text-center d-flex flex-column align-items-center">
                     <p class="text-white mb-2">Escaneie para acompanhar sua posição</p>
+
                     <img
                         src="{% url 'gerar_qr' %}?token={{ token }}"
                         alt="QR Code"
                         class="img-fluid"
-                        style="max-width:250px;"
+                        style="width: 320px; max-width: 100%; display: block;"
                     >
                 </div>
 
                 <a href="{% url 'totem' %}"
                 id="btn-nova-senha"
-                class="btn btn-dark rounded-4 text-white"
+                class="btn btn-dark rounded-4 text-white mt-3"
                 style="padding: 16px 24px; font-size: 1.2rem;">
                     Retirar Nova Senha
                 </a>
+
             </div>
         </div>
 </div>
