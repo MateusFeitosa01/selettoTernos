@@ -9,7 +9,6 @@ from .views import (
     DisplayView,
     AdminSelettoView,
     ChamarProximaView,
-    AutoChamarProximaSenhaView,
     PularSenhaView,
     FinalizarSenhaView,
     display_partial,
@@ -83,12 +82,6 @@ urlpatterns = [
         'chamar-proxima/',
         ChamarProximaView.as_view(),
         name='chamar_proxima'
-    ),
-
-    path(
-        'auto-chamar-proxima/',
-        AutoChamarProximaSenhaView.as_view(),
-        name='auto_chamar_proxima'
     ),
 
     path(

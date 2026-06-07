@@ -19,25 +19,12 @@ from accounts.models import User
 from django.http import HttpResponse, JsonResponse
 from accounts.decorators import role_required
 from django.core.cache import cache
-from .utils import chamar_proxima_senha
 import logging 
 import qrcode
 
 
 
 logger = logging.getLogger(__name__)
-
-class AutoChamarProximaSenhaView(View):
-    """View AJAX para auto-chamada automática de senhas"""
-    
-    def post(self, request):
-        """Chama próxima senha automaticamente via round-robin"""
-        try:
-            chamar_proxima_senha()
-            return JsonResponse({'status': 'success', 'message': 'Chamada automática executada'})
-        except Exception as e:
-            logger.error(f'Erro em auto-call: {str(e)}')
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 @method_decorator(role_required('admin', 'funcionario', 'gerente'), name='dispatch')
 class ChamarProximaView(View):
@@ -272,16 +259,6 @@ class FinalizarSenhaView(View):
             finalizado_em=timezone.now(),
             ativo=False
         )
-
-        # log estado antes da chamada automática
-        logger.info('Antes de chamar_proxima_senha: senhas aguardando=%s, funcionarios livres=%s',
-                    Senha.objects.filter(status='AGUARDANDO').count(),
-                    User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(atendimentos__ativo=True).count())
-
-        chamar_proxima_senha()
-
-        # log estado depois
-        logger.info('Depois de chamar_proxima_senha: senhas em atendimento=%s', Senha.objects.filter(status='EM_ATENDIMENTO').count())
 
         return redirect('adminSeletto')
 
