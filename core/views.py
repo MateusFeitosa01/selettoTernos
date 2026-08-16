@@ -440,7 +440,7 @@ class AdminSelettoView(TemplateView):
             'atendidos': atendidos,
             'senha_atual': senha_atual,
             'fila': fila,
-            'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(username=default_funcionario_username).exclude(atendimentos__ativo=True).order_by('first_name', 'username').distinct(),
+            'funcionarios': User.objects.filter(tipo_usuario='funcionario', is_active=True).exclude(username=default_funcionario_username).order_by('first_name', 'username').distinct(),
             'funcionarios_inativos': User.objects.filter(tipo_usuario='funcionario', is_active=False).exclude(username=default_funcionario_username).order_by('first_name', 'username'),
         })
 
