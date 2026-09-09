@@ -497,9 +497,14 @@ const filtroVenda = document.getElementById('filtroVenda');
 
 function aplicarFiltros() {
 
-    const termo = pesquisa.value.toLowerCase();
+    const normalizar = valor => valor
+        .toLocaleLowerCase('pt-BR')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
-    const categoria = filtroCategoria.value;
+    const termo = normalizar(pesquisa.value.trim());
+
+    const categoria = normalizar(filtroCategoria.value);
 
     const data = filtroData.value;
 
@@ -509,18 +514,15 @@ function aplicarFiltros() {
 
     cards.forEach(card => {
 
-        const texto = card
-            .querySelector('.dados-pesquisa')
-            .innerText
-            .toLowerCase();
+        const texto = normalizar(card.textContent);
 
-        const categoriaCard = card.dataset.categoria;
+        const categoriaCard = normalizar(card.dataset.categoria || '');
 
         const dataCard = card.dataset.data;
 
         const statusCard = card.dataset.status;
 
-        const batePesquisa = texto.includes(termo);
+        const batePesquisa = !termo || texto.includes(termo);
 
         const bateCategoria = !categoria || categoriaCard === categoria;
 
@@ -530,7 +532,7 @@ function aplicarFiltros() {
 
         if (batePesquisa && bateCategoria && bateData && bateStatus) {
 
-            card.style.display = 'block';
+            card.style.display = '';
 
         } else {
 
@@ -542,7 +544,7 @@ function aplicarFiltros() {
 
 }
 
-pesquisa.addEventListener('keyup', aplicarFiltros);
+pesquisa.addEventListener('input', aplicarFiltros);
 
 filtroCategoria.addEventListener('change', aplicarFiltros);
 
