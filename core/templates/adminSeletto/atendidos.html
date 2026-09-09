@@ -46,10 +46,12 @@ Atendidos
                     Tipo de senha
                 </option>
 
+                {% regroup atendidos by categoria.nome as categorias %}
+
                 {% for categoria in categorias %}
 
-                    <option value="{{ categoria }}">
-                        {{ categoria }}
+                    <option value="{{ categoria.grouper }}">
+                        {{ categoria.grouper }}
                     </option>
 
                 {% endfor %}
@@ -102,8 +104,7 @@ Atendidos
             <div class="card-atendimento mt-3"
                 data-categoria="{{ senha.categoria.nome }}"
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
-                data-status="{{ senha.observacao.status|default:'' }}"
-                data-pesquisa="{{ senha.codigo }} {{ senha.categoria.nome }} {{ senha.cliente_nome }} {{ senha.cliente_email|default:'' }} {{ senha.cliente_telefone }} {{ senha.atendente|default:'' }} {{ senha.tipo_locacao|default:'' }} {{ senha.observacao.status|default:'' }} {{ senha.observacao.descricao|default:'' }}">
+                data-status="{{ senha.observacao.status|default:'' }}">
 
                 <!-- CARD -->
                     <div class="bg-white text-black rounded-4 p-4 position-relative"
@@ -496,16 +497,11 @@ const filtroData = document.getElementById('filtroData');
 
 const filtroVenda = document.getElementById('filtroVenda');
 
-const normalizar = valor => valor
-    .toLocaleLowerCase('pt-BR')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
 function aplicarFiltros() {
 
-    const termo = normalizar(pesquisa.value.trim());
+    const termo = pesquisa.value.trim().toLowerCase();
 
-    const categoria = normalizar(filtroCategoria.value);
+    const categoria = filtroCategoria.value.toLowerCase();
 
     const data = filtroData.value;
 
@@ -515,15 +511,18 @@ function aplicarFiltros() {
 
     cards.forEach(card => {
 
-        const texto = card.dataset.textoBusca;
+        const texto = card
+            .querySelector('.dados-pesquisa')
+            .textContent
+            .toLowerCase();
 
-        const categoriaCard = normalizar(card.dataset.categoria || '');
+        const categoriaCard = card.dataset.categoria.toLowerCase();
 
         const dataCard = card.dataset.data;
 
         const statusCard = card.dataset.status;
 
-        const batePesquisa = !termo || texto.includes(termo);
+        const batePesquisa = texto.includes(termo);
 
         const bateCategoria = !categoria || categoriaCard === categoria;
 
@@ -533,7 +532,7 @@ function aplicarFiltros() {
 
         if (batePesquisa && bateCategoria && bateData && bateStatus) {
 
-            card.style.display = '';
+            card.style.display = 'block';
 
         } else {
 
@@ -544,10 +543,6 @@ function aplicarFiltros() {
     });
 
 }
-
-document.querySelectorAll('.card-atendimento').forEach(card => {
-    card.dataset.textoBusca = normalizar(card.textContent);
-});
 
 pesquisa.addEventListener('input', aplicarFiltros);
 
