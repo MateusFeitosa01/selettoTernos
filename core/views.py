@@ -930,23 +930,15 @@ class AtendidosView(TemplateView):
             '-finalizado_em'
         )
 
-        nomes_categorias = Senha.objects.filter(
+        categorias = Senha.objects.filter(
             status='FINALIZADO'
-        ).values_list(
+        ).values(
+            'categoria_id',
             'categoria__nome',
-            flat=True,
         ).distinct().order_by(
-            'categoria__nome'
+            'categoria__nome',
+            'categoria_id',
         )
-
-        categorias = []
-        categorias_normalizadas = set()
-        for nome in nomes_categorias:
-            nome_exibicao = ' '.join(nome.split())
-            nome_normalizado = nome_exibicao.casefold()
-            if nome_normalizado not in categorias_normalizadas:
-                categorias.append(nome_exibicao)
-                categorias_normalizadas.add(nome_normalizado)
 
         context['atendidos'] = atendidos
         context['categorias'] = categorias
