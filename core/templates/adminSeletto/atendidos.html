@@ -102,7 +102,8 @@ Atendidos
             <div class="card-atendimento mt-3"
                 data-categoria="{{ senha.categoria.nome }}"
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
-                data-status="{{ senha.observacao.status|default:'' }}">
+                data-status="{{ senha.observacao.status|default:'' }}"
+                data-pesquisa="{{ senha.codigo }} {{ senha.categoria.nome }} {{ senha.cliente_nome }} {{ senha.cliente_email|default:'' }} {{ senha.cliente_telefone }} {{ senha.atendente|default:'' }} {{ senha.tipo_locacao|default:'' }} {{ senha.observacao.status|default:'' }} {{ senha.observacao.descricao|default:'' }}">
 
                 <!-- CARD -->
                     <div class="bg-white text-black rounded-4 p-4 position-relative"
@@ -495,12 +496,12 @@ const filtroData = document.getElementById('filtroData');
 
 const filtroVenda = document.getElementById('filtroVenda');
 
-function aplicarFiltros() {
+const normalizar = valor => valor
+    .toLocaleLowerCase('pt-BR')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
-    const normalizar = valor => valor
-        .toLocaleLowerCase('pt-BR')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
+function aplicarFiltros() {
 
     const termo = normalizar(pesquisa.value.trim());
 
@@ -514,7 +515,7 @@ function aplicarFiltros() {
 
     cards.forEach(card => {
 
-        const texto = normalizar(card.textContent);
+        const texto = card.dataset.textoBusca;
 
         const categoriaCard = normalizar(card.dataset.categoria || '');
 
@@ -543,6 +544,10 @@ function aplicarFiltros() {
     });
 
 }
+
+document.querySelectorAll('.card-atendimento').forEach(card => {
+    card.dataset.textoBusca = normalizar(card.textContent);
+});
 
 pesquisa.addEventListener('input', aplicarFiltros);
 
