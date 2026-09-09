@@ -46,12 +46,10 @@ Atendidos
                     Tipo de senha
                 </option>
 
-                {% regroup atendidos by categoria.nome as categorias %}
-
                 {% for categoria in categorias %}
 
-                    <option value="{{ categoria.grouper }}">
-                        {{ categoria.grouper }}
+                    <option value="{{ categoria.categoria_id }}">
+                        {{ categoria.categoria__nome }}
                     </option>
 
                 {% endfor %}
@@ -102,9 +100,10 @@ Atendidos
             {% for senha in atendidos %}
 
             <div class="card-atendimento mt-3"
-                data-categoria="{{ senha.categoria.nome }}"
+                data-categoria-id="{{ senha.categoria_id }}"
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
-                data-status="{{ senha.observacao.status|default:'' }}">
+                data-status="{{ senha.observacao.status|default:'' }}"
+                data-pesquisa="{{ senha.codigo }} {{ senha.categoria.nome }} {{ senha.cliente_nome }} {{ senha.cliente_email|default:'' }} {{ senha.cliente_telefone }} {{ senha.atendente|default:'' }} {{ senha.tipo_locacao|default:'' }} {{ senha.observacao.status|default:'' }} {{ senha.observacao.descricao|default:'' }}">
 
                 <!-- CARD -->
                     <div class="bg-white text-black rounded-4 p-4 position-relative"
@@ -501,7 +500,7 @@ function aplicarFiltros() {
 
     const termo = pesquisa.value.trim().toLowerCase();
 
-    const categoria = filtroCategoria.value.toLowerCase();
+    const categoria = filtroCategoria.value;
 
     const data = filtroData.value;
 
@@ -511,12 +510,9 @@ function aplicarFiltros() {
 
     cards.forEach(card => {
 
-        const texto = card
-            .querySelector('.dados-pesquisa')
-            .textContent
-            .toLowerCase();
+        const texto = card.dataset.pesquisa.toLowerCase();
 
-        const categoriaCard = card.dataset.categoria.toLowerCase();
+        const categoriaCard = card.dataset.categoriaId;
 
         const dataCard = card.dataset.data;
 

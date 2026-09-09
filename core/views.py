@@ -922,14 +922,25 @@ class AtendidosView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         atendidos = Senha.objects.select_related(
-            'categoria'
+            'categoria',
+            'observacao',
         ).filter(
             status='FINALIZADO'
         ).order_by(
             '-finalizado_em'
         )
 
+        categorias = Senha.objects.filter(
+            status='FINALIZADO'
+        ).values(
+            'categoria_id',
+            'categoria__nome',
+        ).distinct().order_by(
+            'categoria__nome'
+        )
+
         context['atendidos'] = atendidos
+        context['categorias'] = categorias
 
         return context
     
