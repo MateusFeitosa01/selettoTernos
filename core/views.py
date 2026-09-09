@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from django.db.models import Count
 from django.db import transaction, IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -930,14 +931,15 @@ class AtendidosView(TemplateView):
             '-finalizado_em'
         )
 
-        categorias = Senha.objects.filter(
-            status='FINALIZADO'
-        ).values(
-            'categoria_id',
-            'categoria__nome',
-        ).distinct().order_by(
-            'categoria__nome',
-            'categoria_id',
+        categorias = Categoria.objects.filter(
+            senha__status='FINALIZADO'
+        ).annotate(
+            total_finalizados=Count('senha')
+        ).select_related(
+            'fila'
+        ).order_by(
+            'nome',
+            'id',
         )
 
         context['atendidos'] = atendidos

@@ -48,8 +48,8 @@ Atendidos
 
                 {% for categoria in categorias %}
 
-                    <option value="{{ categoria.categoria_id }}">
-                        {{ categoria.categoria__nome }}
+                    <option value="{{ categoria.id }}">
+                        {{ categoria.nome }} ({{ categoria.fila.nome }} / {{ categoria.prefixo }} / ID {{ categoria.id }})
                     </option>
 
                 {% endfor %}
