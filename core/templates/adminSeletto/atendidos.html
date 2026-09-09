@@ -46,12 +46,10 @@ Atendidos
                     Tipo de senha
                 </option>
 
-                {% regroup atendidos by categoria.nome as categorias %}
-
                 {% for categoria in categorias %}
 
-                    <option value="{{ categoria.grouper }}">
-                        {{ categoria.grouper }}
+                    <option value="{{ categoria }}">
+                        {{ categoria }}
                     </option>
 
                 {% endfor %}
@@ -501,7 +499,7 @@ function aplicarFiltros() {
 
     const termo = pesquisa.value.toLowerCase();
 
-    const categoria = filtroCategoria.value.toLowerCase();
+    const categoria = filtroCategoria.value;
 
     const data = filtroData.value;
 
@@ -516,7 +514,7 @@ function aplicarFiltros() {
             .innerText
             .toLowerCase();
 
-        const categoriaCard = card.dataset.categoria.toLowerCase();
+        const categoriaCard = card.dataset.categoria;
 
         const dataCard = card.dataset.data;
 
