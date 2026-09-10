@@ -922,12 +922,42 @@ class AtendidosView(TemplateView):
 
         context = super().get_context_data(**kwargs)
 
+        query = self.request.GET.get('q', '').strip()
+        categoria_id = self.request.GET.get('categoria', '').strip()
+        data_filtro = self.request.GET.get('data', '').strip()
+        status_filtro = self.request.GET.get('status', '').strip()
+
         atendidos = Senha.objects.select_related(
             'categoria',
             'observacao',
         ).filter(
             status='FINALIZADO'
-        ).order_by(
+        )
+
+        if query:
+            termo = query
+            atendidos = atendidos.filter(
+                Q(codigo__icontains=termo) |
+                Q(cliente_nome__icontains=termo) |
+                Q(cliente_email__icontains=termo) |
+                Q(cliente_telefone__icontains=termo) |
+                Q(atendente__icontains=termo) |
+                Q(categoria__nome__icontains=termo) |
+                Q(tipo_locacao__icontains=termo) |
+                Q(observacao__status__icontains=termo) |
+                Q(observacao__descricao__icontains=termo)
+            )
+
+        if categoria_id:
+            atendidos = atendidos.filter(categoria_id=categoria_id)
+
+        if data_filtro:
+            atendidos = atendidos.filter(finalizado_em__date=data_filtro)
+
+        if status_filtro:
+            atendidos = atendidos.filter(observacao__status=status_filtro)
+
+        atendidos = atendidos.order_by(
             '-finalizado_em',
             '-id',
         )
@@ -945,6 +975,10 @@ class AtendidosView(TemplateView):
 
         context['atendidos'] = atendidos
         context['categorias'] = categorias
+        context['filtro_q'] = query
+        context['filtro_categoria'] = categoria_id
+        context['filtro_data'] = data_filtro
+        context['filtro_status'] = status_filtro
 
         return context
     

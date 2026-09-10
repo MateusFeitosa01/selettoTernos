@@ -27,11 +27,13 @@ Atendidos
         </div>
     </div>
 
-    <div class="row g-3 align-items-center mb-4">
+    <form method="get" id="filtroAtendidosForm" class="row g-3 align-items-center mb-4">
 
         <div class="col-12 col-lg-5">
             <input type="text"
                    id="pesquisaAtendidos"
+                   name="q"
+                   value="{{ filtro_q|default:'' }}"
                    placeholder="Pesquisar por nome, telefone, email ou senha..."
                    class="form-control rounded-4 py-3 px-4 border-0 text-white"
                    style="background-color: rgb(23,23,23); font-size: 1rem;">
@@ -39,6 +41,7 @@ Atendidos
 
         <div class="col-12 col-md-4 col-lg-2">
             <select id="filtroCategoria"
+                    name="categoria"
                     class="form-select rounded-4 py-3 px-4 border-0 text-white"
                     style="background-color: rgb(23,23,23); font-size: 1rem;">
 
@@ -48,8 +51,12 @@ Atendidos
 
                 {% for categoria in categorias %}
 
+<<<<<<< Updated upstream
                         <option value="{{ categoria.id }}"
                             data-categoria-nome="{{ categoria.nome|lower }}">
+=======
+                    <option value="{{ categoria.id }}" {% if filtro_categoria == categoria.id|stringformat:'s' %}selected{% endif %}>
+>>>>>>> Stashed changes
                         {{ categoria.nome }}
                     </option>
 
@@ -66,6 +73,8 @@ Atendidos
 
                 <input type="date"
                        id="filtroData"
+                       name="data"
+                       value="{{ filtro_data|default:'' }}"
                        class="form-control rounded-4 py-3 ps-5 pe-4 border-0 text-white"
                        style="background-color: rgb(23,23,23); font-size: 1rem; color-scheme: dark;">
 
@@ -74,6 +83,7 @@ Atendidos
 
         <div class="col-12 col-md-4 col-lg-2">
             <select id="filtroVenda"
+                    name="status"
                     class="form-select rounded-4 py-3 px-4 border-0 text-white"
                     style="background-color: rgb(23,23,23); font-size: 1rem;">
 
@@ -81,18 +91,24 @@ Atendidos
                     Status da venda
                 </option>
 
-                <option value="FECHOU">
+                <option value="FECHOU" {% if filtro_status == 'FECHOU' %}selected{% endif %}>
                     Venda Realizada
                 </option>
 
-                <option value="NAO_FECHOU">
+                <option value="NAO_FECHOU" {% if filtro_status == 'NAO_FECHOU' %}selected{% endif %}>
                     Venda Não Realizada
                 </option>
 
             </select>
         </div>
 
-    </div>
+        <div class="col-12 col-lg-1 d-flex align-items-center">
+            <button type="submit" class="btn btn-light rounded-4 px-3 w-100">
+                Filtrar
+            </button>
+        </div>
+
+    </form>
 
     {% if atendidos %}
 
@@ -103,9 +119,20 @@ Atendidos
             <div class="card-atendimento mt-3"
                 data-senha-id="{{ senha.id }}"
                 data-categoria-id="{{ senha.categoria_id }}"
+<<<<<<< Updated upstream
                 data-categoria-nome="{{ senha.categoria.nome|lower }}"
+=======
+                data-categoria-nome="{{ senha.categoria.nome|default:'' }}"
+                data-cliente-nome="{{ senha.cliente_nome|default:'' }}"
+                data-email="{{ senha.cliente_email|default:'' }}"
+                data-telefone="{{ senha.cliente_telefone|default:'' }}"
+                data-atendente="{{ senha.atendente|default:'' }}"
+                data-tipo-locacao="{{ senha.tipo_locacao|default:'' }}"
+>>>>>>> Stashed changes
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
                 data-status="{{ senha.observacao.status|default:'' }}"
+                data-observacao-status="{{ senha.observacao.status|default:'' }}"
+                data-observacao-descricao="{{ senha.observacao.descricao|default:'' }}"
                 data-pesquisa="{{ senha.codigo }} {{ senha.categoria.nome }} {{ senha.cliente_nome }} {{ senha.cliente_email|default:'' }} {{ senha.cliente_telefone }} {{ senha.atendente|default:'' }} {{ senha.tipo_locacao|default:'' }} {{ senha.observacao.status|default:'' }} {{ senha.observacao.descricao|default:'' }}">
 
                 <!-- CARD -->
@@ -476,29 +503,18 @@ Atendidos
 <script>
 
 function toggleDetalhes(id) {
-
     const detalhes = document.getElementById(id);
-
-    if (detalhes.style.display === 'none') {
-
-        detalhes.style.display = 'block';
-
-    } else {
-
-        detalhes.style.display = 'none';
-
-    }
-
+    if (!detalhes) return;
+    detalhes.style.display = detalhes.style.display === 'none' ? 'block' : 'none';
 }
 
+const formFiltro = document.getElementById('filtroAtendidosForm');
 const pesquisa = document.getElementById('pesquisaAtendidos');
-
 const filtroCategoria = document.getElementById('filtroCategoria');
-
 const filtroData = document.getElementById('filtroData');
-
 const filtroVenda = document.getElementById('filtroVenda');
 
+<<<<<<< Updated upstream
 function aplicarFiltros() {
     const termo = pesquisa.value.trim().toLowerCase();
     const categoria = filtroCategoria.value;
@@ -531,15 +547,14 @@ function aplicarFiltros() {
             bateStatus
         ) ? 'block' : 'none';
     });
+=======
+if (formFiltro && pesquisa && filtroCategoria && filtroData && filtroVenda) {
+    pesquisa.addEventListener('input', () => formFiltro.submit());
+    filtroCategoria.addEventListener('change', () => formFiltro.submit());
+    filtroData.addEventListener('change', () => formFiltro.submit());
+    filtroVenda.addEventListener('change', () => formFiltro.submit());
+>>>>>>> Stashed changes
 }
-
-pesquisa.addEventListener('input', aplicarFiltros);
-
-filtroCategoria.addEventListener('change', aplicarFiltros);
-
-filtroData.addEventListener('change', aplicarFiltros);
-
-filtroVenda.addEventListener('change', aplicarFiltros);
 
 </script>
 
