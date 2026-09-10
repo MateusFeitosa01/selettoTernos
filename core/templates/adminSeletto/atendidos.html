@@ -51,12 +51,7 @@ Atendidos
 
                 {% for categoria in categorias %}
 
-<<<<<<< Updated upstream
-                        <option value="{{ categoria.id }}"
-                            data-categoria-nome="{{ categoria.nome|lower }}">
-=======
                     <option value="{{ categoria.id }}" {% if filtro_categoria == categoria.id|stringformat:'s' %}selected{% endif %}>
->>>>>>> Stashed changes
                         {{ categoria.nome }}
                     </option>
 
@@ -119,16 +114,12 @@ Atendidos
             <div class="card-atendimento mt-3"
                 data-senha-id="{{ senha.id }}"
                 data-categoria-id="{{ senha.categoria_id }}"
-<<<<<<< Updated upstream
-                data-categoria-nome="{{ senha.categoria.nome|lower }}"
-=======
                 data-categoria-nome="{{ senha.categoria.nome|default:'' }}"
                 data-cliente-nome="{{ senha.cliente_nome|default:'' }}"
                 data-email="{{ senha.cliente_email|default:'' }}"
                 data-telefone="{{ senha.cliente_telefone|default:'' }}"
                 data-atendente="{{ senha.atendente|default:'' }}"
                 data-tipo-locacao="{{ senha.tipo_locacao|default:'' }}"
->>>>>>> Stashed changes
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
                 data-status="{{ senha.observacao.status|default:'' }}"
                 data-observacao-status="{{ senha.observacao.status|default:'' }}"
@@ -514,46 +505,11 @@ const filtroCategoria = document.getElementById('filtroCategoria');
 const filtroData = document.getElementById('filtroData');
 const filtroVenda = document.getElementById('filtroVenda');
 
-<<<<<<< Updated upstream
-function aplicarFiltros() {
-    const termo = pesquisa.value.trim().toLowerCase();
-    const categoria = filtroCategoria.value;
-    const opcaoCategoria = filtroCategoria.options[filtroCategoria.selectedIndex];
-    const nomeCategoria = (opcaoCategoria?.dataset.categoriaNome || '').trim();
-    const data = filtroData.value;
-    const statusVenda = filtroVenda.value;
-    const cards = document.querySelectorAll('#historicoAtendimentos .card-atendimento');
-
-    cards.forEach(card => {
-        const texto = (card.dataset.pesquisa || '').toLowerCase();
-        const categoriaCard = card.dataset.categoriaId;
-        const nomeCategoriaCard = (card.dataset.categoriaNome || '').trim();
-        const dataCard = card.dataset.data;
-        const statusCard = card.dataset.status;
-
-        const batePesquisa = texto.includes(termo);
-        const bateCategoria = !categoria || (
-            categoriaCard
-                ? categoriaCard === categoria
-                : nomeCategoriaCard === nomeCategoria
-        );
-        const bateData = !data || dataCard === data;
-        const bateStatus = !statusVenda || statusCard === statusVenda;
-
-        card.style.display = (
-            batePesquisa &&
-            bateCategoria &&
-            bateData &&
-            bateStatus
-        ) ? 'block' : 'none';
-    });
-=======
 if (formFiltro && pesquisa && filtroCategoria && filtroData && filtroVenda) {
     pesquisa.addEventListener('input', () => formFiltro.submit());
     filtroCategoria.addEventListener('change', () => formFiltro.submit());
     filtroData.addEventListener('change', () => formFiltro.submit());
     filtroVenda.addEventListener('change', () => formFiltro.submit());
->>>>>>> Stashed changes
 }
 
 </script>
