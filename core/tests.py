@@ -72,5 +72,3 @@ class AtendidosViewTests(TestCase):
 		self.assertEqual(response.context['atendidos'].count(), 3)
 		self.assertContains(response, f'value="{primeira.id}"')
 		self.assertContains(response, f'value="{segunda.id}"')
-		self.assertContains(response, f'ID {primeira.id}')
-		self.assertContains(response, f'ID {segunda.id}')

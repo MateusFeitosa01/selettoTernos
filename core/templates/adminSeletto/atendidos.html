@@ -95,11 +95,12 @@ Atendidos
 
     {% if atendidos %}
 
-        <div class="d-flex flex-column gap-3">
+        <div id="historicoAtendimentos" class="d-flex flex-column gap-3">
 
             {% for senha in atendidos %}
 
             <div class="card-atendimento mt-3"
+                data-senha-id="{{ senha.id }}"
                 data-categoria-id="{{ senha.categoria_id }}"
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
                 data-status="{{ senha.observacao.status|default:'' }}"
@@ -501,7 +502,7 @@ function aplicarFiltros() {
     const categoria = filtroCategoria.value;
     const data = filtroData.value;
     const statusVenda = filtroVenda.value;
-    const cards = document.querySelectorAll('.card-atendimento');
+    const cards = document.querySelectorAll('#historicoAtendimentos .card-atendimento');
 
     cards.forEach(card => {
         const texto = (card.dataset.pesquisa || '').toLowerCase();

@@ -928,7 +928,8 @@ class AtendidosView(TemplateView):
         ).filter(
             status='FINALIZADO'
         ).order_by(
-            '-finalizado_em'
+            '-finalizado_em',
+            '-id',
         )
 
         categorias = Categoria.objects.filter(
