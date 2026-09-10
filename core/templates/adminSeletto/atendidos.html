@@ -497,47 +497,30 @@ const filtroData = document.getElementById('filtroData');
 const filtroVenda = document.getElementById('filtroVenda');
 
 function aplicarFiltros() {
-
-    const termo = pesquisa.value.trim().toLowerCase();
-
     const categoria = filtroCategoria.value;
-
-    const data = filtroData.value;
-
-    const statusVenda = filtroVenda.value;
-
     const cards = document.querySelectorAll('.card-atendimento');
 
+    console.log('Categoria selecionada:', categoria);
+    console.log('Total de cards:', cards.length);
+
     cards.forEach(card => {
-
-        const texto = card.dataset.pesquisa.toLowerCase();
-
         const categoriaCard = card.dataset.categoriaId;
 
-        const dataCard = card.dataset.data;
-
-        const statusCard = card.dataset.status;
-
-        const batePesquisa = texto.includes(termo);
+        console.log(
+            'Card:',
+            card.dataset.pesquisa,
+            'Categoria:',
+            categoriaCard,
+            'Selecionada:',
+            categoria,
+            'Match:',
+            !categoria || categoriaCard === categoria
+        );
 
         const bateCategoria = !categoria || categoriaCard === categoria;
 
-        const bateData = !data || dataCard === data;
-
-        const bateStatus = !statusVenda || statusCard === statusVenda;
-
-        if (batePesquisa && bateCategoria && bateData && bateStatus) {
-
-            card.style.display = 'block';
-
-        } else {
-
-            card.style.display = 'none';
-
-        }
-
+        card.style.display = bateCategoria ? 'block' : 'none';
     });
-
 }
 
 pesquisa.addEventListener('input', aplicarFiltros);
