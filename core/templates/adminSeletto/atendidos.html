@@ -48,7 +48,8 @@ Atendidos
 
                 {% for categoria in categorias %}
 
-                    <option value="{{ categoria.id }}">
+                        <option value="{{ categoria.id }}"
+                            data-categoria-nome="{{ categoria.nome|lower }}">
                         {{ categoria.nome }}
                     </option>
 
@@ -102,6 +103,7 @@ Atendidos
             <div class="card-atendimento mt-3"
                 data-senha-id="{{ senha.id }}"
                 data-categoria-id="{{ senha.categoria_id }}"
+                data-categoria-nome="{{ senha.categoria.nome|lower }}"
                 data-data="{{ senha.finalizado_em|date:'Y-m-d' }}"
                 data-status="{{ senha.observacao.status|default:'' }}"
                 data-pesquisa="{{ senha.codigo }} {{ senha.categoria.nome }} {{ senha.cliente_nome }} {{ senha.cliente_email|default:'' }} {{ senha.cliente_telefone }} {{ senha.atendente|default:'' }} {{ senha.tipo_locacao|default:'' }} {{ senha.observacao.status|default:'' }} {{ senha.observacao.descricao|default:'' }}">
@@ -500,6 +502,8 @@ const filtroVenda = document.getElementById('filtroVenda');
 function aplicarFiltros() {
     const termo = pesquisa.value.trim().toLowerCase();
     const categoria = filtroCategoria.value;
+    const opcaoCategoria = filtroCategoria.options[filtroCategoria.selectedIndex];
+    const nomeCategoria = (opcaoCategoria?.dataset.categoriaNome || '').trim();
     const data = filtroData.value;
     const statusVenda = filtroVenda.value;
     const cards = document.querySelectorAll('#historicoAtendimentos .card-atendimento');
@@ -507,11 +511,16 @@ function aplicarFiltros() {
     cards.forEach(card => {
         const texto = (card.dataset.pesquisa || '').toLowerCase();
         const categoriaCard = card.dataset.categoriaId;
+        const nomeCategoriaCard = (card.dataset.categoriaNome || '').trim();
         const dataCard = card.dataset.data;
         const statusCard = card.dataset.status;
 
         const batePesquisa = texto.includes(termo);
-        const bateCategoria = !categoria || categoriaCard === categoria;
+        const bateCategoria = !categoria || (
+            categoriaCard
+                ? categoriaCard === categoria
+                : nomeCategoriaCard === nomeCategoria
+        );
         const bateData = !data || dataCard === data;
         const bateStatus = !statusVenda || statusCard === statusVenda;
 
